@@ -1,0 +1,11 @@
+RAKTHRO - Blood Donation Appointment
+------------------------------------
+Donor ID: D007
+Name    : Yuva
+Blood   : A+
+City    : kanyakumari
+Hospital: Sree Ramakrishna Hospital
+Date    : 2025-08-06
+Time    : 11:00 AM
+------------------------------------
+Please bring a valid ID and arrive 15 mins early.
