@@ -36,7 +36,7 @@ public class MailService {
 
             message.setText(msg);
             Transport.send(message);
-            System.out.println("✅ Email sent successfully to " + toEmail);
+            System.out.println(" Email sent successfully to " + toEmail);
         } catch (MessagingException e) {
             e.printStackTrace();
             System.out.println(" Email failed to send");

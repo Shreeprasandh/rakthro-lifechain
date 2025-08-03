@@ -129,7 +129,8 @@
                                         System.out.println("2. Edit Donor");
                                         System.out.println("3. Delete Donor");
                                         System.out.println("4. View All Appointments"); 
-                                        System.out.println("5. Back to Main Menu");
+                                        System.out.println("5. View Blood Requests"); 
+                                        System.out.println("6. Back to Main Menu");
                                         System.out.println("Choose an option: ");
                                         int adminChoice = sc.nextInt();
                                         sc.nextLine();
@@ -152,13 +153,15 @@
                                                 manager.viewAllAppointments();
                                                 break;
                                             case 5:
+                                                manager.viewBloodRequests();
+                                            case 6:
                                                 System.out.println("Exiting Admin Panel...");
                                                 break;
                                             default:
                                                 System.out.println("Invalid option.");
                                         }
 
-                                        if (adminChoice == 5) break;
+                                        if (adminChoice == 6) break;
                                     }
                                 } else {
                                     System.out.println("Access Denied!");

@@ -303,7 +303,51 @@ public class DonorManager {
     }
 }
 
+    public void viewBloodRequests() {
+    String filePath = System.getProperty("user.dir") + "/db/requests.csv";
+    File file = new File(filePath);
 
+    if (!file.exists()) {
+        System.out.println("No blood request data found.");
+        return;
+    }
+
+    // Map: City → [ (BloodGroup, Requests) ]
+    Map<String, List<String[]>> requestMap = new HashMap<>();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        String line = reader.readLine(); // Skip header
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split(",");
+            if (parts.length != 3) continue;
+
+            String city = parts[0].trim();
+            String bg = parts[1].trim();
+            int req = Integer.parseInt(parts[2].trim());
+
+            requestMap.putIfAbsent(city, new ArrayList<>());
+            requestMap.get(city).add(new String[]{bg, String.valueOf(req)});
+        }
+    } catch (IOException e) {
+        System.out.println("Error reading requests.csv");
+        return;
+    }
+
+    System.out.println("\n--- Blood Group Requests by City ---");
+    for (String city : requestMap.keySet()) {
+        System.out.println("\n City: " + city);
+        List<String[]> groupRequests = requestMap.get(city);
+
+        // Sort descending by requests
+        groupRequests.sort((a, b) -> Integer.parseInt(b[1]) - Integer.parseInt(a[1]));
+
+        for (String[] bgReq : groupRequests) {
+            String bg = bgReq[0];
+            String count = bgReq[1];
+            System.out.println("  " + bg + " - " + count + " requests");
+        }
+    }
+}
 
     public void deleteDonor(String id) {
     Iterator<Donor> iterator = donorList.iterator();
