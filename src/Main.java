@@ -11,7 +11,7 @@
                     System.out.println("\n--- RAKTHRO Blood Donor Console ---");
                     System.out.println("1. Register Donor");
                     System.out.println("2. Search Donors");
-                    System.out.println("3. Book Donation Appointment");
+                    System.out.println("3. Donation Appointment");
                     System.out.println("4. Donor Dashboard ");
                     System.out.println("5. Admin Login");
                     System.out.println("6. Exit");
@@ -56,60 +56,67 @@
                             }
                             break;
                         case 3:
-                                System.out.print("Enter your Donor ID: ");
-                                donorId = sc.nextLine();
+                                System.out.println("\n--- Donation Appointment ---");
+                                System.out.println("1. Book New Appointment");
+                                System.out.println("2. Cancel Appointment");
+                                System.out.print("Choose an option: ");
+                                int apptChoice = sc.nextInt(); sc.nextLine();
+                                if (apptChoice == 1) {
+                                    System.out.print("Enter your Donor ID: ");
+                                    donorId = sc.nextLine();
+                                    Donor donor = manager.getDonorById(donorId);
 
-                                // Step 1: Fetch the donor
-                                Donor donor = manager.getDonorById(donorId);
+                                    if (donor == null) {
+                                        System.out.println(" Donor ID not found.");
+                                        break;
+                                    }
 
-                                if (donor == null) {
-                                    System.out.println(" Donor ID not found.");
-                                    break;
+                                    // ✅ Book appointment
+                                    if (donor.getLastDonatedDate() == null ||
+                                        donor.getLastDonatedDate().isBlank() ||
+                                        donor.getLastDonatedDate().equalsIgnoreCase("N/A")) {
+                                        System.out.println(" No last donation data available. Cannot book appointment.");
+                                        break;
+                                    }
+
+                                    if (!manager.isEligibleToDonate(donor)) {
+                                        int daysLeft = manager.daysUntilEligible(donor);
+                                        System.out.println(" Not eligible to donate. Try again in " + daysLeft + " days.");
+                                        break;
+                                    }
+
+                                    System.out.println("Available Cities: ");
+                                    List<String> cities = hospitalDir.getCities();
+                                    for (int i = 0; i < cities.size(); i++) {
+                                        System.out.println((i + 1) + ". " + cities.get(i));
+                                    }
+                                    System.out.print("Choose city number: ");
+                                    int cityChoice = sc.nextInt(); sc.nextLine();
+                                    String selectedCity = cities.get(cityChoice - 1);
+
+                                    List<String> hospitals = hospitalDir.getHospitalsByCity(selectedCity);
+                                    if (hospitals.isEmpty()) {
+                                        System.out.println("No hospitals found in this city.");
+                                        break;
+                                    }
+
+                                    System.out.println("Available Hospitals in " + selectedCity + ":");
+                                    for (int i = 0; i < hospitals.size(); i++) {
+                                        System.out.println((i + 1) + ". " + hospitals.get(i));
+                                    }
+                                    System.out.print("Choose hospital number: ");
+                                    int hospChoice = sc.nextInt(); sc.nextLine();
+                                    String selectedHospital = hospitals.get(hospChoice - 1);
+
+                                    manager.generateAppointmentSlip(donor, selectedCity, selectedHospital, sc);
                                 }
 
-                                // Step 2: Check for N/A or empty last donation date
-                                if (donor.getLastDonatedDate() == null ||
-                                    donor.getLastDonatedDate().isBlank() ||
-                                    donor.getLastDonatedDate().equalsIgnoreCase("N/A")) {
-
-                                    System.out.println(" No last donation data available for donor " + donor.getDonorId());
-                                    System.out.println(" Cannot proceed with appointment until last donation date is recorded.");
-                                    break;
+                                else if (apptChoice == 2) {
+                                    System.out.print("Enter your Donor ID to cancel appointment: ");
+                                    String cancelId = sc.nextLine();
+                                    manager.cancelAppointment(cancelId,sc);
                                 }
 
-                                // Step 3: Check eligibility (90-day rule)
-                                if (!manager.isEligibleToDonate(donor)) {
-                                    int daysLeft = manager.daysUntilEligible(donor);
-                                    System.out.println(" Not eligible to donate. You can donate after " + daysLeft + " day(s).");
-                                    break;
-                                }
-
-                                // 🏥 Step 4: Select city and hospital
-                                System.out.println("Available Cities: ");
-                                List<String> cities = hospitalDir.getCities();
-                                for (int i = 0; i < cities.size(); i++) {
-                                    System.out.println((i + 1) + ". " + cities.get(i));
-                                }
-                                System.out.print("Choose city number: ");
-                                int cityChoice = sc.nextInt();
-                                sc.nextLine();
-                                city = cities.get(cityChoice - 1);
-
-                                List<String> hospitals = hospitalDir.getHospitalsByCity(city);
-                                if (hospitals.isEmpty()) {
-                                    System.out.println("No hospitals found in this city.");
-                                    break;
-                                }
-
-                                System.out.println("Available Hospitals in " + city + ":");
-                                for (int i = 0; i < hospitals.size(); i++) {
-                                    System.out.println((i + 1) + ". " + hospitals.get(i));
-                                }
-                                System.out.print("Choose hospital number: ");
-                                int hospChoice = sc.nextInt();
-                                sc.nextLine();
-                                String hospital = hospitals.get(hospChoice - 1);
-                                manager.generateAppointmentSlip(donor, city, hospital, sc);
                                 break;
 
                         case 4:

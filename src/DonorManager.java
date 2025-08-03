@@ -235,7 +235,7 @@ public class DonorManager {
         System.out.println(" Failed to send email confirmation.");
         e.printStackTrace(); // optional for debugging
     }
-    logSimpleAppointment(donor, appointmentDate);
+    logSimpleAppointment(donor, appointmentDate, tempEmail);
 }
 
     public void logAppointment(Donor donor, String email, String city, String hospital, String date, String time) {
@@ -263,21 +263,22 @@ public class DonorManager {
         System.out.println(" Failed to log appointment.");
     }
 }
-    private void logSimpleAppointment(Donor donor, LocalDate appointmentDate) {
+    private void logSimpleAppointment(Donor donor, LocalDate appointmentDate, String email) {
     String filePath = "./db/appointments_simple.csv";
     File file = new File(filePath);
-    file.getParentFile().mkdirs(); // ensure db folder
+    file.getParentFile().mkdirs();
 
     boolean isNew = !file.exists();
 
     try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
-        if (isNew) writer.println("DonorID,Name,Date");
+        if (isNew) writer.println("DonorID,Name,Date,Email");
 
-        writer.printf("%s,%s,%s\n", donor.donorId, donor.name, appointmentDate);
+        writer.printf("%s,%s,%s,%s\n", donor.donorId, donor.name, appointmentDate, email);
     } catch (IOException e) {
         System.out.println(" Failed to save simplified appointment.");
     }
 }
+
 
     public void viewAllAppointments() {
     String filePath = "./db/appointments_simple.csv";
@@ -397,6 +398,99 @@ public class DonorManager {
     for (Donor d : notYet) {
         System.out.printf("%s | %s |  Yet to Donate\n", d.donorId, d.name);
     }
+}
+
+    public void cancelAppointment(String donorId, Scanner sc) {
+    String filePath = "./db/appointments_simple.csv";
+    File originalFile = new File(filePath);
+    File tempFile = new File("./db/temp_appointments.csv");
+
+    List<String[]> matchingAppointments = new ArrayList<>();
+    List<String> allLines = new ArrayList<>();
+    String email = null;
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(originalFile))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            allLines.add(line); // Save full file lines
+            if (line.startsWith("DonorID")) continue;
+
+            String[] parts = line.split(",");
+            if (parts.length >= 4 && parts[0].trim().equalsIgnoreCase(donorId)) {
+                matchingAppointments.add(parts);
+                email = parts[3].trim(); // only saved once, reused for mail
+            }
+        }
+    } catch (IOException e) {
+        System.out.println("Error reading appointments.");
+        return;
+    }
+
+    if (matchingAppointments.isEmpty()) {
+        System.out.println(" No appointments found for Donor ID: " + donorId);
+        return;
+    }
+
+    System.out.println("\n Your Appointments:");
+    for (int i = 0; i < matchingAppointments.size(); i++) {
+        String[] a = matchingAppointments.get(i);
+        System.out.printf("%d. Name: %s | Date: %s\n", i + 1, a[1], a[2]);
+    }
+
+    System.out.print("\nWhich appointment number do you want to cancel? ");
+    int choice = sc.nextInt(); sc.nextLine();
+
+    if (choice < 1 || choice > matchingAppointments.size()) {
+        System.out.println("Invalid choice.");
+        return;
+    }
+
+    String[] selected = matchingAppointments.get(choice - 1);
+    String selectedDate = selected[2];
+    String selectedName = selected[1];
+
+    System.out.print("Are you sure you want to cancel this appointment? (yes/no): ");
+    String confirm = sc.nextLine().trim().toLowerCase();
+
+    if (!confirm.equals("yes")) {
+        System.out.println("Cancellation aborted.");
+        return;
+    }
+
+    //  Write filtered data to temp file
+    try (PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+        writer.println("DonorID,Name,Date,Email");
+        for (String line : allLines) {
+            if (line.startsWith("DonorID")) continue;
+
+            String[] parts = line.split(",");
+            if (parts.length >= 4 &&
+                parts[0].trim().equalsIgnoreCase(donorId) &&
+                parts[2].trim().equalsIgnoreCase(selectedDate)) {
+                continue; // skip selected appointment
+            }
+            writer.println(line);
+        }
+    } catch (IOException e) {
+        System.out.println("Error updating file.");
+        return;
+    }
+
+    //  Replace original file
+    if (!originalFile.delete() || !tempFile.renameTo(originalFile)) {
+        System.out.println("File operation failed.");
+        return;
+    }
+
+    sendCancellationEmail(selectedName, email);
+    System.out.println(" Appointment cancelled and email sent to " + email);
+}
+
+
+    private void sendCancellationEmail(String name, String toEmail) {
+    String subject = "Rakthro - Appointment Cancelled";
+    String body = String.format("Hi %s,\n\nYour blood donation appointment has been cancelled as requested.\n\n– Rakthro Team", name);
+    MailService.sendCustomEmail(toEmail, subject, body);
 }
 
 
