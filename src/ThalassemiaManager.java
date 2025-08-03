@@ -60,50 +60,125 @@ public class ThalassemiaManager {
 
 
     public void registerCheckup(Scanner sc) {
-        System.out.print("Enter your Donor ID: ");
-        String id = sc.nextLine().trim();
-        List<ThalassemiaDonor> all = loadDonors();
-        boolean updated = false;
+    System.out.print("Enter your Donor ID: ");
+    String donorId = sc.nextLine().trim();
 
-        for (ThalassemiaDonor d : all) {
-            if (d.donorId.equalsIgnoreCase(id)) {
-                System.out.print("Enter Thalassemia Type (Alpha/Beta): ");
-                d.thalType = sc.nextLine().trim();
-                System.out.print("Enter Thal Status (Carrier/Affected/Normal): ");
-                d.thalStatus = sc.nextLine().trim();
-                System.out.print("Enter Checkup Hospital Name: ");
-                d.checkupHospital = sc.nextLine().trim();
-                System.out.print("Enter any remarks: ");
-                d.thalRemarks = sc.nextLine().trim();
-                d.lastCheckupDate = java.time.LocalDate.now().toString();
-                d.eligibleToDonateThal = d.thalStatus.equalsIgnoreCase("Carrier") ? "Yes" : "No";
-                updated = true;
-                break;
+    DonorManager dm = new DonorManager();
+    Donor donor = dm.getDonorById(donorId);
+
+    if (donor == null) {
+        System.out.println("Donor ID not found!");
+        return;
+    }
+
+   // Step 1: Load all cities and their hospitals
+    Map<String, List<String>> cityToHospitals = new LinkedHashMap<>();
+
+    try (BufferedReader br = new BufferedReader(new FileReader("db/hospital.csv"))) {
+        String line = br.readLine(); // Skip header
+
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",", 2);
+            if (parts.length == 2) {
+                String city = parts[0].trim();
+                String hospital = parts[1].trim();
+
+                // Add hospital to the city list
+                List<String> hospitals = cityToHospitals.get(city);
+                if (hospitals == null) {
+                    hospitals = new ArrayList<>();
+                    cityToHospitals.put(city, hospitals);
+                }
+                hospitals.add(hospital);
             }
         }
-
-        if (updated) {
-    saveDonors(all);
-
-    try {
-        ThalassemiaDonor donor = findById(id); //  Get updated donor info
-        String subject = "🩺 Thalassemia Checkup Registered!";
-        String body = "Hi " + donor.name + ",\n\nYour Thalassemia checkup has been successfully recorded.\n\n"
-                    + "Type: " + donor.thalType + "\n"
-                    + "Status: " + donor.thalStatus + "\n"
-                    + "Hospital: " + donor.checkupHospital + "\n\n"
-                    + "You're marked as " + (donor.eligibleToDonateThal.equalsIgnoreCase("Yes") ? "eligible" : "not eligible") + " to donate special blood.\n\n"
-                    + "– Rakthro Team 💉";
-
-        MailService.sendCustomEmail(donor.email, subject, body);
-    } catch (Exception e) {
-        System.out.println("Couldn't send confirmation email ");
+    } catch (IOException e) {
+        System.out.println("Error reading hospital.csv.");
+        return;
     }
 
-    System.out.println("Checkup data updated successfully.");
+    // Step 2: Show cities to choose
+    if (cityToHospitals.isEmpty()) {
+        System.out.println("No hospitals available.");
+        return;
+    }
+
+    List<String> cities = new ArrayList<>(cityToHospitals.keySet());
+    System.out.println("\nAvailable Cities:");
+    for (int i = 0; i < cities.size(); i++) {
+        System.out.println((i + 1) + ". " + cities.get(i));
+    }
+
+    int cityChoice = -1;
+    while (cityChoice < 1 || cityChoice > cities.size()) {
+        System.out.print("Select a city (1-" + cities.size() + "): ");
+        try {
+            cityChoice = Integer.parseInt(sc.nextLine().trim());
+        } catch (Exception ignored) {}
+    }
+
+    String selectedCity = cities.get(cityChoice - 1);
+    List<String> hospitalList = cityToHospitals.get(selectedCity);
+
+    // Step 3: Select hospital from selected city
+    System.out.println("\nAvailable hospitals in " + selectedCity + ":");
+    for (int i = 0; i < hospitalList.size(); i++) {
+        System.out.println((i + 1) + ". " + hospitalList.get(i));
+    }
+
+    int hospitalChoice = -1;
+    while (hospitalChoice < 1 || hospitalChoice > hospitalList.size()) {
+        System.out.print("Select a hospital (1-" + hospitalList.size() + "): ");
+        try {
+            hospitalChoice = Integer.parseInt(sc.nextLine().trim());
+        } catch (Exception ignored) {}
+    }
+
+    String selectedHospital = hospitalList.get(hospitalChoice - 1);
+String currentDate = java.time.LocalDate.now().toString();
+
+// 💌 Ask email manually
+System.out.print("Enter your email for confirmation: ");
+String email = sc.nextLine().trim();
+
+// ✏️ Save to thal_checkups.csv
+String dataLine = String.join(",",
+    donor.getDonorId(),
+    donor.getName(),
+    email,  // use manual email
+    donor.getCity(),
+    donor.getBloodGroup(),
+    currentDate,
+    selectedHospital
+);
+
+// Save it
+try (BufferedWriter bw = new BufferedWriter(new FileWriter("db/thal_checkups.csv", true))) {
+    bw.write(dataLine);
+    bw.newLine();
+} catch (IOException e) {
+    System.out.println("Error saving checkup info.");
+    return;
 }
 
+// 💌 Send email to entered address
+try {
+    String subject = "Thalassemia Checkup Appointment Confirmed!";
+    String body = "Hi " + donor.getName() + ",\n\n"
+                + "Your Thalassemia checkup appointment has been successfully booked!\n\n"
+                + "Hospital: " + selectedHospital + "\n"
+                + "Date: " + currentDate + "\n\n"
+                + "We’ll update your thal status after the checkup.\n"
+                + "Thanks for your support \n\n– Rakthro Team";
+    MailService.sendCustomEmail(email, subject, body);
+} catch (Exception e) {
+    System.out.println("Could not send confirmation email.");
+    e.printStackTrace(); // optional for debugging
+}
+
+System.out.println("Thalassemia checkup appointment booked successfully!");
     }
+    
 
     public void bookThalDonation(Scanner sc) {
     System.out.print("Enter your Donor ID: ");
@@ -158,6 +233,7 @@ public class ThalassemiaManager {
 }
 
 
+
     public void saveThalDonor(ThalassemiaDonor donor) {
     String filePath = "db/thal_donors.csv";
     File file = new File(filePath);
@@ -189,6 +265,84 @@ public class ThalassemiaManager {
         e.printStackTrace();
     }
 
+}
+
+    public void cancelThalCheckup(Scanner sc) {
+    System.out.print("Enter your Donor ID: ");
+    String donorId = sc.nextLine().trim();
+
+    List<String[]> allLines = new ArrayList<>();
+    List<Integer> indices = new ArrayList<>();
+
+    try (BufferedReader br = new BufferedReader(new FileReader("db/thal_checkups.csv"))) {
+        String line;
+        int index = 0;
+
+        System.out.println("\n--- Your Booked Checkups ---");
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",", -1);
+            if (parts.length >= 7 && parts[0].equalsIgnoreCase(donorId)) {
+                System.out.println((indices.size() + 1) + ". " + parts[1] + " | " + parts[5] + " | " + parts[6]);
+                indices.add(index); // mark this line
+            }
+            allLines.add(parts);
+            index++;
+        }
+    } catch (IOException e) {
+        System.out.println("Error reading checkup data.");
+        return;
+    }
+
+    if (indices.isEmpty()) {
+        System.out.println("No checkups found for this ID.");
+        return;
+    }
+
+    System.out.print("Select appointment to cancel (1-" + indices.size() + "): ");
+    int choice = Integer.parseInt(sc.nextLine().trim());
+
+    if (choice < 1 || choice > indices.size()) {
+        System.out.println("Invalid choice.");
+        return;
+    }
+
+    int lineIndexToRemove = indices.get(choice - 1);
+    String[] removedEntry = allLines.get(lineIndexToRemove);
+
+    // Confirm deletion
+    System.out.print("Are you sure you want to cancel this appointment? (yes/no): ");
+    String confirm = sc.nextLine().trim();
+
+    if (!confirm.equalsIgnoreCase("yes")) {
+        System.out.println("Cancellation aborted.");
+        return;
+    }
+
+    // Remove the line
+    allLines.remove(lineIndexToRemove);
+
+    // Rewrite the file
+    try (PrintWriter pw = new PrintWriter(new FileWriter("db/thal_checkups.csv"))) {
+        for (String[] parts : allLines) {
+            pw.println(String.join(",", parts));
+        }
+    } catch (IOException e) {
+        System.out.println("Error saving file.");
+        return;
+    }
+
+    // Email Notification
+    try {
+        String subject = "Thalassemia Checkup Appointment Cancelled";
+        String body = "Hi " + removedEntry[1] + ",\n\n"
+                    + "Your thalassemia checkup appointment on " + removedEntry[5] + " at " + removedEntry[6] + " has been cancelled as per your request.\n\n"
+                    + "We hope to see you again soon!\n\n– Rakthro Team";
+        MailService.sendCustomEmail(removedEntry[2], subject, body);
+    } catch (Exception e) {
+        System.out.println("Could not send cancellation email.");
+    }
+
+    System.out.println("Appointment cancelled successfully!");
 }
 
 

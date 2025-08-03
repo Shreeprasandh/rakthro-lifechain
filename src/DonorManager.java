@@ -196,7 +196,7 @@ public class DonorManager {
     }
     
     public Donor getDonorById(String id) {
-    try (BufferedReader br = new BufferedReader(new FileReader("donors.csv"))) {
+    try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
         String line;
         br.readLine(); // skip header
         while ((line = br.readLine()) != null) {

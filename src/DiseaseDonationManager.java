@@ -39,7 +39,7 @@ public class DiseaseDonationManager {
         while (true) {
             System.out.println("\n--- Thalassemia Support ---");
             System.out.println("1. Register as Donor for Thalassemia");
-            System.out.println("2. Register for Thalassemia Checkup");
+            System.out.println("2. Thalassemia Checkup");
             System.out.println("3. Book Thalassemia Blood Donation");
             System.out.println("4. View Thalassemia Dashboard");
             System.out.println("5. View My Donation History");
@@ -87,8 +87,26 @@ public class DiseaseDonationManager {
                     break;
 
                 case "2":
-                    thal.registerCheckup(sc);
+                    while (true) {
+                        System.out.println("\n--- Thalassemia Checkup ---");
+                        System.out.println("1. Book Thalassemia Checkup");
+                        System.out.println("2. Cancel Thalassemia Checkup");
+                        System.out.println("3. Back");
+                        System.out.print("Choose an option: ");
+                        int subChoice = Integer.parseInt(sc.nextLine().trim());
+
+                        if (subChoice == 1) {
+                            thal.registerCheckup(sc);
+                        } else if (subChoice == 2) {
+                            thal.cancelThalCheckup(sc);
+                        } else if (subChoice == 3) {
+                            break;
+                        } else {
+                            System.out.println("Invalid option.");
+                        }
+                    }
                     break;
+
                 case "3":
                     thal.bookThalDonation(sc);
                     break;
