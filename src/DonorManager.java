@@ -304,18 +304,43 @@ public class DonorManager {
 }
 
     public void viewBloodRequests() {
+    String[] cities = {
+        "Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem",
+        "Erode", "Tirunelveli", "Thoothukudi", "Vellore", "Nagercoil"
+    };
+    String[] bloodGroups = {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"};
     String filePath = System.getProperty("user.dir") + "/db/requests.csv";
-    File file = new File(filePath);
 
-    if (!file.exists()) {
-        System.out.println("No blood request data found.");
+    Random random = new Random();
+
+    // Generate & overwrite fresh random data
+    try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
+        writer.println("City,BloodGroup,Requests");
+
+        for (String city : cities) {
+            int groupCount = random.nextInt(3) + 2; // 2 to 4 blood groups
+            Set<String> selectedGroups = new HashSet<>();
+            
+            while (selectedGroups.size() < groupCount) {
+                String bg = bloodGroups[random.nextInt(bloodGroups.length)];
+                if (!selectedGroups.contains(bg)) {
+                    int req = random.nextInt(91) + 10; // 10 to 100 requests
+                    writer.printf("%s,%s,%d\n", city, bg, req);
+                    selectedGroups.add(bg);
+                }
+            }
+        }
+
+    } catch (IOException e) {
+        System.out.println("Error generating requests.csv");
         return;
     }
 
-    // Map: City → [ (BloodGroup, Requests) ]
+    // Then call the old display logic
+    System.out.println("\n--- Blood Group Requests by City ---");
     Map<String, List<String[]>> requestMap = new HashMap<>();
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
         String line = reader.readLine(); // Skip header
         while ((line = reader.readLine()) != null) {
             String[] parts = line.split(",");
@@ -333,18 +358,13 @@ public class DonorManager {
         return;
     }
 
-    System.out.println("\n--- Blood Group Requests by City ---");
     for (String city : requestMap.keySet()) {
-        System.out.println("\n City: " + city);
+        System.out.println("\n📍 City: " + city);
         List<String[]> groupRequests = requestMap.get(city);
-
-        // Sort descending by requests
         groupRequests.sort((a, b) -> Integer.parseInt(b[1]) - Integer.parseInt(a[1]));
 
         for (String[] bgReq : groupRequests) {
-            String bg = bgReq[0];
-            String count = bgReq[1];
-            System.out.println("  " + bg + " - " + count + " requests");
+            System.out.println("  " + bgReq[0] + " → " + bgReq[1] + " requests");
         }
     }
 }
@@ -365,7 +385,7 @@ public class DonorManager {
 
 
     public void loadFromFile() {
-    donorList.clear(); // ✅ VERY IMPORTANT
+    donorList.clear(); //  VERY IMPORTANT
 
     File file = new File(fileName);
     if (!file.exists()) {
