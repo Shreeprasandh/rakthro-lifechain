@@ -128,8 +128,9 @@
                                         System.out.println("1. View All Donors");
                                         System.out.println("2. Edit Donor");
                                         System.out.println("3. Delete Donor");
-                                        System.out.println("4. Back to Main Menu");
-                                        System.out.print("Choose an option: ");
+                                        System.out.println("4. View All Appointments"); 
+                                        System.out.println("5. Back to Main Menu");
+                                        System.out.println("Choose an option: ");
                                         int adminChoice = sc.nextInt();
                                         sc.nextLine();
 
@@ -148,13 +149,16 @@
                                                 manager.deleteDonor(delId);
                                                 break;
                                             case 4:
+                                                manager.viewAllAppointments();
+                                                break;
+                                            case 5:
                                                 System.out.println("Exiting Admin Panel...");
                                                 break;
                                             default:
                                                 System.out.println("Invalid option.");
                                         }
 
-                                        if (adminChoice == 4) break;
+                                        if (adminChoice == 5) break;
                                     }
                                 } else {
                                     System.out.println("Access Denied!");

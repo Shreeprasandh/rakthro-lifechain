@@ -235,6 +235,7 @@ public class DonorManager {
         System.out.println(" Failed to send email confirmation.");
         e.printStackTrace(); // optional for debugging
     }
+    logSimpleAppointment(donor, appointmentDate);
 }
 
     public void logAppointment(Donor donor, String email, String city, String hospital, String date, String time) {
@@ -262,8 +263,48 @@ public class DonorManager {
         System.out.println(" Failed to log appointment.");
     }
 }
+    private void logSimpleAppointment(Donor donor, LocalDate appointmentDate) {
+    String filePath = "./db/appointments_simple.csv";
+    File file = new File(filePath);
+    file.getParentFile().mkdirs(); // ensure db folder
 
-    
+    boolean isNew = !file.exists();
+
+    try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
+        if (isNew) writer.println("DonorID,Name,Date");
+
+        writer.printf("%s,%s,%s\n", donor.donorId, donor.name, appointmentDate);
+    } catch (IOException e) {
+        System.out.println(" Failed to save simplified appointment.");
+    }
+}
+
+    public void viewAllAppointments() {
+    String filePath = "./db/appointments_simple.csv";
+    File file = new File(filePath);
+
+    if (!file.exists()) {
+        System.out.println("No appointments found.");
+        return;
+    }
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        String line;
+        System.out.println("\n--- All Appointments ---");
+        reader.readLine(); // skip header
+        while ((line = reader.readLine()) != null) {
+            if (!line.trim().isEmpty()) {
+                String[] parts = line.split(",");
+                System.out.printf("Donor ID: %s | Name: %s | Date: %s\n", parts[0], parts[1], parts[2]);
+            }
+        }
+    } catch (IOException e) {
+        System.out.println("Failed to read appointments.");
+    }
+}
+
+
+
     public void deleteDonor(String id) {
     Iterator<Donor> iterator = donorList.iterator();
     while (iterator.hasNext()) {
