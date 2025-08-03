@@ -259,7 +259,7 @@ public class DonorManager {
                 time
         );
     } catch (IOException e) {
-        System.out.println("⚠️ Failed to log appointment.");
+        System.out.println(" Failed to log appointment.");
     }
 }
 
