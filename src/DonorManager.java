@@ -359,7 +359,7 @@ public class DonorManager {
     }
 
     for (String city : requestMap.keySet()) {
-        System.out.println("\n📍 City: " + city);
+        System.out.println("\n City: " + city);
         List<String[]> groupRequests = requestMap.get(city);
         groupRequests.sort((a, b) -> Integer.parseInt(b[1]) - Integer.parseInt(a[1]));
 
@@ -368,6 +368,38 @@ public class DonorManager {
         }
     }
 }
+
+    public void viewDonorsByDonationDate() {
+    List<Donor> donated = new ArrayList<>();
+    List<Donor> notYet = new ArrayList<>();
+
+    for (Donor d : donorList) {
+        if (d.lastDonatedDate == null || d.lastDonatedDate.isBlank() || d.lastDonatedDate.equalsIgnoreCase("N/A")) {
+            notYet.add(d);
+        } else {
+            donated.add(d);
+        }
+    }
+
+    // Sort donors who have donated (recent → oldest)
+    donated.sort((a, b) -> {
+        LocalDate dateA = LocalDate.parse(a.lastDonatedDate);
+        LocalDate dateB = LocalDate.parse(b.lastDonatedDate);
+        return dateB.compareTo(dateA); // descending
+    });
+
+    System.out.println("\n--- Donors Sorted by Last Donation Date ---");
+    for (Donor d : donated) {
+        System.out.printf("%s | %s | Last Donated: %s\n", d.donorId, d.name, d.lastDonatedDate);
+    }
+
+    System.out.println("\n--- Yet to Donate ---");
+    for (Donor d : notYet) {
+        System.out.printf("%s | %s |  Yet to Donate\n", d.donorId, d.name);
+    }
+}
+
+
 
     public void deleteDonor(String id) {
     Iterator<Donor> iterator = donorList.iterator();
