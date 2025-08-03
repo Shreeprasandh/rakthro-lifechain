@@ -1,0 +1,11 @@
+RAKTHRO - Blood Donation Appointment
+------------------------------------
+Donor ID: D004
+Name    : Sudhir K
+Blood   : A1+
+City    : chennai
+Hospital: MIOT International
+Date    : 2025-08-09
+Time    : 9:00 AM
+------------------------------------
+Please bring a valid ID and arrive 15 mins early.

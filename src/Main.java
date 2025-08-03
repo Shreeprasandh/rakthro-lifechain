@@ -1,5 +1,4 @@
     import java.util.*;
-
     public class Main {
         public static void main(String[] args) {
             try (Scanner sc = new Scanner(System.in)) {
@@ -14,7 +13,8 @@
                     System.out.println("3. Donation Appointment");
                     System.out.println("4. Donor Dashboard ");
                     System.out.println("5. Admin Login");
-                    System.out.println("6. Exit");
+                    System.out.println("6. Disease-Based Blood Donation 💉");
+                    System.out.println("7. Exit");
                     System.out.print("Choose an option: ");
                     int choice = sc.nextInt();
                     sc.nextLine();
@@ -180,6 +180,9 @@
                                 }
                                 break;
                         case 6:
+                            DiseaseDonationManager.showDiseaseBasedDonationMenu(sc);
+                            break;
+                        case 7:
                             System.out.println("Exiting RAKTHRO...");
                             return;
                         default:
