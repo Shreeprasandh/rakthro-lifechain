@@ -237,6 +237,32 @@ public class DonorManager {
     }
 }
 
+    public void logAppointment(Donor donor, String email, String city, String hospital, String date, String time) {
+    String filePath = "./db/appointments.csv";
+    File file = new File(filePath);
+    file.getParentFile().mkdirs(); // ensure db folder
+
+    boolean newFile = !file.exists();
+
+    try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
+        if (newFile) {
+            writer.println("DonorID,Name,Email,BloodGroup,City,Hospital,Date,Time");
+        }
+        writer.printf("%s,%s,%s,%s,%s,%s,%s,%s\n",
+                donor.donorId,
+                donor.name,
+                email,
+                donor.bloodGroup,
+                city,
+                hospital,
+                date,
+                time
+        );
+    } catch (IOException e) {
+        System.out.println("⚠️ Failed to log appointment.");
+    }
+}
+
     
     public void deleteDonor(String id) {
     Iterator<Donor> iterator = donorList.iterator();
