@@ -1,0 +1,8 @@
+ThalID,DonorID,Name,Age,BloodGroup,City,Contact,Email,ThalType,ThalStatus,LastCheckupDate,LastThalDonationDate,EligibleToDonateThal,CheckupHospital,ThalRemarks
+T001,D001,Mithun T,18,A+,Salem,1234567890,N/A,N/A,Inactive,N/A,N/A,No,N/A,N/A
+T002,D002,Shreeprasandh K,18,B+,Tiruppur,1234567890,N/A,N/A,Inactive,N/A,N/A,No,N/A,N/A
+T003,D003,Sivaram V,19,B-,Chennai,1234567895,N/A,N/A,Inactive,N/A,N/A,No,N/A,N/A
+T004,D004,Sudhir K,18,A1+,Salem,1234567891,N/A,N/A,Inactive,N/A,N/A,No,N/A,N/A
+T005,D005,Dhanudharan K S,18,A1+,Erode,12345678964,N/A,N/A,Inactive,N/A,N/A,No,N/A,N/A
+T006,D006,Akshaya B K,18,B+,Coimbatore,1234567656,N/A,N/A,Inactive,N/A,N/A,No,N/A,N/A
+T007,D007,Yuva,18,A+,Madurai,1234567892,N/A,N/A,Inactive,N/A,N/A,No,N/A,N/A

@@ -1,8 +1,11 @@
+import java.util.List;
 import java.util.Scanner;
 
 public class DiseaseDonationManager {
 
-    public static void showDiseaseBasedDonationMenu(Scanner sc) {
+    public static void showDiseaseBasedDonationMenu(Scanner sc, DonorManager manager) {
+        ThalassemiaManager thal = new ThalassemiaManager();
+
         while (true) {
             System.out.println("\n--- Disease-Based Donation System  ---");
             System.out.println("1. Thalassemia Support");
@@ -15,7 +18,7 @@ public class DiseaseDonationManager {
 
             switch (choice) {
                 case "1":
-                    showThalassemiaMenu(sc); // 👈 You’ll define this next
+                    showThalassemiaMenu(sc, manager, thal);
                     break;
                 case "2":
                     System.out.println("Sickle Cell Anemia support is not implemented yet.");
@@ -28,40 +31,83 @@ public class DiseaseDonationManager {
                     return;
                 default:
                     System.out.println("Invalid option.");
-
-                    
             }
         }
     }
 
-    private static void showThalassemiaMenu(Scanner sc) {
-        System.out.println("\n--- Thalassemia Donation Hub  ---");
-        System.out.println("1. Book Thalassemia Checkup Appointment");
-        System.out.println("2. Donate as Beta Carrier");
-        System.out.println("3. Donate as Alpha Carrier");
-        System.out.println("4. View Thalassemia Dashboard");
-        System.out.println("5. Back");
+    public static void showThalassemiaMenu(Scanner sc, DonorManager manager, ThalassemiaManager thal) {
+        while (true) {
+            System.out.println("\n--- Thalassemia Support ---");
+            System.out.println("1. Register as Donor for Thalassemia");
+            System.out.println("2. Register for Thalassemia Checkup");
+            System.out.println("3. Book Thalassemia Blood Donation");
+            System.out.println("4. View Thalassemia Dashboard");
+            System.out.println("5. View My Donation History");
+            System.out.println("6. View & Respond to Thal Donation Requests");
+            System.out.println("7. Back");
 
-        System.out.print("Choose an option: ");
-        String input = sc.nextLine();
+            System.out.print("Choose an option: ");
+            String choice = sc.nextLine();
 
-        switch (input) {
-            case "1":
-                System.out.println(" Booking checkup... (not implemented yet)");
-                break;
-            case "2":
-                System.out.println(" Beta carrier donation... (not implemented yet)");
-                break;
-            case "3":
-                System.out.println(" Alpha carrier donation... (not implemented yet)");
-                break;
-            case "4":
-                System.out.println(" Viewing Thalassemia Dashboard... (not implemented yet)");
-                break;
-            case "5":
-                return;
-            default:
-                System.out.println("Invalid input.");
+            switch (choice) {
+                case "1":
+                    // Register donor first
+                    System.out.print("Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Age: ");
+                    int age = Integer.parseInt(sc.nextLine());
+                    System.out.print("Blood Group: ");
+                    String bg = sc.nextLine();
+                    System.out.print("City: ");
+                    String city = sc.nextLine();
+                    System.out.print("Contact: ");
+                    String contact = sc.nextLine();
+                    System.out.print("Last Donated Date (yyyy-mm-dd): ");
+                    String lastDonatedDate = sc.nextLine();
+                    String donorId = manager.generateDonorId();
+                    Donor newDonor = new Donor(donorId, name, age, bg, city, contact, lastDonatedDate);
+                    manager.addDonor(newDonor);
+
+                    //  FIXED ORDER: Load → Generate ID → Add → Save
+                    List<ThalassemiaDonor> currentThalDonors = thal.loadDonors();
+                    String thalId = thal.generateThalId(currentThalDonors); 
+
+                    ThalassemiaDonor thalDonor = new ThalassemiaDonor(
+                        thalId,
+                        donorId,
+                        name,
+                        age,
+                        bg, 
+                        city,
+                        contact,
+                        "N/A", "N/A", "N/A", "N/A", "N/A", "No", "N/A", "N/A"
+                    );
+                    thal.saveThalDonor(thalDonor);
+                    System.out.println(" Thalassemia donor registered with Thal ID: " + thalId);
+                    break;
+
+                case "2":
+                    thal.registerCheckup(sc);
+                    break;
+                case "3":
+                    thal.bookThalDonation(sc);
+                    break;
+                case "4":
+                    thal.viewThalDashboard();
+                    break;
+                case "5":
+                    System.out.print("Enter your Donor ID: ");
+                    String viewId = sc.nextLine().trim();
+                    thal.viewThalDonationHistory(viewId);
+                    break;
+                case "6":
+                    thal.viewAndRespondToRequests(sc);
+                    break;
+                case "7":
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
     }
 }

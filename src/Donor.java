@@ -39,6 +39,25 @@ public class Donor {
     public String getName() {
         return name;
     }
+    public String getId() {
+        return donorId;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public String getBloodGroup() {
+        return bloodGroup;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getContact() {
+        return contact;
+    }
 
 
 

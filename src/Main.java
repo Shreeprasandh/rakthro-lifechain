@@ -13,7 +13,7 @@
                     System.out.println("3. Donation Appointment");
                     System.out.println("4. Donor Dashboard ");
                     System.out.println("5. Admin Login");
-                    System.out.println("6. Disease-Based Blood Donation 💉");
+                    System.out.println("6. Disease-Based Blood Donation");
                     System.out.println("7. Exit");
                     System.out.print("Choose an option: ");
                     int choice = sc.nextInt();
@@ -21,31 +21,15 @@
 
                     switch (choice) {
                         case 1:
-                            System.out.print("Name: ");
-                            String name = sc.nextLine();
-                            System.out.print("Age: ");
-                            int age = sc.nextInt(); sc.nextLine();
-                            System.out.print("Blood Group: ");
-                            String bg = sc.nextLine();
-                            System.out.print("City: ");
-                            String city = sc.nextLine();
-                            System.out.print("Contact: ");
-                            String contact = sc.nextLine();
-                            System.out.print("Last Donated Date (yyyy-mm-dd): ");
-                            String lastDonatedDate = sc.nextLine();
-                            String donorId = manager.generateDonorId(); //  Generate ID
-                            Donor d = new Donor(donorId, name, age, bg, city, contact, lastDonatedDate);
-                            manager.addDonor(d);
-                            System.out.println("Donor Registered Successfully!");
+                            manager.registerNewDonor(sc);
                             break;
-
                         case 2:
                             System.out.print("Do you know the Donor ID? (yes/no): ");
                             String knowsId = sc.nextLine().trim().toLowerCase();
                             
                             if (knowsId.equals("yes")) {
                                 System.out.print("Enter Donor ID: ");
-                                donorId = sc.nextLine();
+                                String donorId = sc.nextLine();
                                 manager.searchById(donorId);
                             } else {
                                 System.out.print("Enter Blood Group: ");
@@ -63,7 +47,7 @@
                                 int apptChoice = sc.nextInt(); sc.nextLine();
                                 if (apptChoice == 1) {
                                     System.out.print("Enter your Donor ID: ");
-                                    donorId = sc.nextLine();
+                                    String donorId = sc.nextLine();
                                     Donor donor = manager.getDonorById(donorId);
 
                                     if (donor == null) {
@@ -71,7 +55,7 @@
                                         break;
                                     }
 
-                                    // ✅ Book appointment
+                                    //  Book appointment
                                     if (donor.getLastDonatedDate() == null ||
                                         donor.getLastDonatedDate().isBlank() ||
                                         donor.getLastDonatedDate().equalsIgnoreCase("N/A")) {
@@ -180,7 +164,7 @@
                                 }
                                 break;
                         case 6:
-                            DiseaseDonationManager.showDiseaseBasedDonationMenu(sc);
+                            DiseaseDonationManager.showDiseaseBasedDonationMenu(sc, manager);
                             break;
                         case 7:
                             System.out.println("Exiting RAKTHRO...");

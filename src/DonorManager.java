@@ -20,6 +20,34 @@ public class DonorManager {
     saveToFile();         
 }
 
+    public void registerNewDonor(Scanner sc) {
+    System.out.print("Name: ");
+    String name = sc.nextLine();
+
+    System.out.print("Age: ");
+    int age = sc.nextInt(); sc.nextLine();
+
+    System.out.print("Blood Group: ");
+    String bg = sc.nextLine();
+
+    System.out.print("City: ");
+    String city = sc.nextLine();
+
+    System.out.print("Contact: ");
+    String contact = sc.nextLine();
+
+    System.out.print("Last Donated Date (yyyy-mm-dd): ");
+    String lastDonatedDate = sc.nextLine();
+
+    String donorId = generateDonorId();
+
+    Donor d = new Donor(donorId, name, age, bg, city, contact, lastDonatedDate);
+    addDonor(d);
+
+    System.out.println("Donor Registered Successfully! Donor ID: " + donorId);
+}
+
+
     public String generateDonorId() {
     loadFromFile();  // Make sure we're using fresh file data
     int maxId = 0;
@@ -166,12 +194,24 @@ public class DonorManager {
         saveToFile();
         System.out.println("Donor updated successfully!");
     }
+    
     public Donor getDonorById(String id) {
-    for (Donor d : donorList) {
-        if (d.donorId.equalsIgnoreCase(id.trim())) return d;
+    try (BufferedReader br = new BufferedReader(new FileReader("donors.csv"))) {
+        String line;
+        br.readLine(); // skip header
+        while ((line = br.readLine()) != null) {
+            String[] data = line.split(",");
+            if (data[0].trim().equals(id)) {
+                return new Donor(data[0].trim(), data[1].trim(), Integer.parseInt(data[2].trim()),
+                                 data[3].trim(), data[4].trim(), data[5].trim(), data[6].trim());
+            }
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
     }
     return null;
 }
+
 
     public boolean isEligibleToDonate(Donor donor) {
     if (donor.lastDonatedDate == null || donor.lastDonatedDate.equalsIgnoreCase("N/A") || donor.lastDonatedDate.isBlank()) {
@@ -509,7 +549,7 @@ public class DonorManager {
     System.out.println("Donor ID not found.");
 }
 
-
+    
     public void loadFromFile() {
     donorList.clear(); //  VERY IMPORTANT
 
