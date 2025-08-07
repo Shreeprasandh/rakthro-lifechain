@@ -70,5 +70,18 @@ public class MailService {
     }
 }
 
+public static void sendSCDTransfusionConfirmation(String toEmail, String name, String date, String time, String hospital) {
+    String subject = " Sickle Cell Transfusion Confirmation – Rakthro";
+    String body = "Dear " + name + ",\n\n" +
+                  "Your Sickle Cell transfusion has been successfully scheduled.\n\n" +
+                  "📍 Hospital: " + hospital + "\n" +
+                  "📅 Date: " + date + "\n" +
+                  "⏰ Time: " + time + "\n\n" +
+                  "Please arrive 10 minutes early and carry your SCD ID.\n\n" +
+                  "With care,\nRakthro Support Team ";
+
+    sendCustomEmail(toEmail, subject, body);
+}
+
 
 }

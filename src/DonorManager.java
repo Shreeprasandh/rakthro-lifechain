@@ -43,6 +43,8 @@ public class DonorManager {
 
     Donor d = new Donor(donorId, name, age, bg, city, contact, lastDonatedDate);
     addDonor(d);
+    ThalassemiaManager thalManager = new ThalassemiaManager();
+    thalManager.addNewDonorToThalDatabase(d);
 
     System.out.println("Donor Registered Successfully! Donor ID: " + donorId);
 }
@@ -109,6 +111,7 @@ public class DonorManager {
             System.out.println("Error saving donor data.");
         }
     }
+    
     public void showDashboard(Scanner sc) {
         if (donorList.isEmpty()) {
             System.out.println("No donors to show in dashboard.");
@@ -230,6 +233,73 @@ public class DonorManager {
     LocalDate lastDate = LocalDate.parse(donor.lastDonatedDate);
     long days = ChronoUnit.DAYS.between(lastDate, LocalDate.now());
     return 90 - (int) days;
+}
+
+
+    public String selectHospital(Scanner sc) {
+    Map<String, List<String>> cityToHospitals = new LinkedHashMap<>();
+
+    // Load hospital.csv
+    try (BufferedReader br = new BufferedReader(new FileReader("db/hospital.csv"))) {
+        String line = br.readLine(); // skip header
+        while ((line = br.readLine()) != null) {
+    String[] parts = line.split(",", 2);
+    if (parts.length == 2) {
+        String city = parts[0].trim();
+        String hospital = parts[1].trim();
+
+        List<String> hospitals = cityToHospitals.get(city);
+        if (hospitals == null) {
+            hospitals = new ArrayList<>();
+            cityToHospitals.put(city, hospitals);
+        }
+        hospitals.add(hospital);
+    }
+}
+
+    } catch (IOException e) {
+        System.out.println("Error loading hospital list.");
+        return null;
+    }
+
+    if (cityToHospitals.isEmpty()) {
+        System.out.println("No hospitals found.");
+        return null;
+    }
+
+    // Show cities
+    List<String> cities = new ArrayList<>(cityToHospitals.keySet());
+    System.out.println("\nAvailable Cities:");
+    for (int i = 0; i < cities.size(); i++) {
+        System.out.println((i + 1) + ". " + cities.get(i));
+    }
+
+    int cityChoice = -1;
+    while (cityChoice < 1 || cityChoice > cities.size()) {
+        System.out.print("Select a city (1-" + cities.size() + "): ");
+        try {
+            cityChoice = Integer.parseInt(sc.nextLine().trim());
+        } catch (Exception ignored) {}
+    }
+
+    String selectedCity = cities.get(cityChoice - 1);
+    List<String> hospitals = cityToHospitals.get(selectedCity);
+
+    // Show hospitals
+    System.out.println("\nHospitals in " + selectedCity + ":");
+    for (int i = 0; i < hospitals.size(); i++) {
+        System.out.println((i + 1) + ". " + hospitals.get(i));
+    }
+
+    int hospitalChoice = -1;
+    while (hospitalChoice < 1 || hospitalChoice > hospitals.size()) {
+        System.out.print("Select a hospital (1-" + hospitals.size() + "): ");
+        try {
+            hospitalChoice = Integer.parseInt(sc.nextLine().trim());
+        } catch (Exception ignored) {}
+    }
+
+    return hospitals.get(hospitalChoice - 1);
 }
 
 

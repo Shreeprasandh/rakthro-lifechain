@@ -3,8 +3,8 @@
         public static void main(String[] args) {
             try (Scanner sc = new Scanner(System.in)) {
                 DonorManager manager = new DonorManager();
-                AuthSystem auth = new AuthSystem();
                 HospitalDirectory hospitalDir = new HospitalDirectory();
+                AuthSystem auth = new AuthSystem();
 
                 while (true) {
                     System.out.println("\n--- RAKTHRO Blood Donor Console ---");
@@ -14,7 +14,8 @@
                     System.out.println("4. Donor Dashboard ");
                     System.out.println("5. Admin Login");
                     System.out.println("6. Disease-Based Blood Donation");
-                    System.out.println("7. Exit");
+                    System.out.println("7. Blood Request");
+                    System.out.println("8. Exit");
                     System.out.print("Choose an option: ");
                     int choice = sc.nextInt();
                     sc.nextLine();
@@ -69,30 +70,15 @@
                                         break;
                                     }
 
-                                    System.out.println("Available Cities: ");
-                                    List<String> cities = hospitalDir.getCities();
-                                    for (int i = 0; i < cities.size(); i++) {
-                                        System.out.println((i + 1) + ". " + cities.get(i));
-                                    }
-                                    System.out.print("Choose city number: ");
-                                    int cityChoice = sc.nextInt(); sc.nextLine();
-                                    String selectedCity = cities.get(cityChoice - 1);
-
-                                    List<String> hospitals = hospitalDir.getHospitalsByCity(selectedCity);
-                                    if (hospitals.isEmpty()) {
-                                        System.out.println("No hospitals found in this city.");
+                                    //  Use new selectHospital
+                                    String selectedHospital = manager.selectHospital(sc);
+                                    if (selectedHospital == null) {
+                                        System.out.println("Hospital selection failed.");
                                         break;
                                     }
 
-                                    System.out.println("Available Hospitals in " + selectedCity + ":");
-                                    for (int i = 0; i < hospitals.size(); i++) {
-                                        System.out.println((i + 1) + ". " + hospitals.get(i));
-                                    }
-                                    System.out.print("Choose hospital number: ");
-                                    int hospChoice = sc.nextInt(); sc.nextLine();
-                                    String selectedHospital = hospitals.get(hospChoice - 1);
-
-                                    manager.generateAppointmentSlip(donor, selectedCity, selectedHospital, sc);
+                                    // Pass donor.city as city for slip
+                                    manager.generateAppointmentSlip(donor, donor.city, selectedHospital, sc);
                                 }
 
                                 else if (apptChoice == 2) {
@@ -167,6 +153,9 @@
                             DiseaseDonationManager.showDiseaseBasedDonationMenu(sc, manager);
                             break;
                         case 7:
+                            BloodRequestHandler.handleRequestMenu(sc, manager, hospitalDir, "normal");
+                            break;
+                        case 8:
                             System.out.println("Exiting RAKTHRO...");
                             return;
                         default:
@@ -176,4 +165,5 @@
                 }
             }
         }
-    }
+    }   
+    

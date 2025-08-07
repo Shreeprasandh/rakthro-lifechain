@@ -1,1 +1,1 @@
-DonorID,Name,ThalType,Date
+ThalID,DonorID,Name,Email,City,Hospital,Date,Time

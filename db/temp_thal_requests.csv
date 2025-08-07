@@ -1,0 +1,11 @@
+RequestID,PatientName,City,RequiredThalType,Date,Status
+R001,Kavya,Chennai,Alpha,2025-08-03,Accepted by Akshaya B K
+R002,Rahul,Bangalore,Beta,2025-08-04,Open
+R003,Anika,Hyderabad,Alpha,2025-08-04,Closed
+R004,Vikram,Chennai,Beta,2025-08-05,Open
+R005,Meera,Mumbai,Alpha,2025-08-06,Open
+R006,Surya,Pune,Alpha,2025-08-03,Closed
+R007,Ishita,Delhi,Beta,2025-08-07,Open
+R008,Rakesh,Chennai,Alpha,2025-08-07,Open
+R009,Priya,Bangalore,Beta,2025-08-08,Open
+R010,Yuvan,Hyderabad,Alpha,2025-08-09,Closed
