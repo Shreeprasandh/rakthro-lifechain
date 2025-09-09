@@ -524,8 +524,9 @@ public void cancelThalDonation(Scanner sc) {
 }
 
 
+
 public void viewAndRespondToRequests(Scanner sc) {
-    String filePath = "./db/thal_requests.csv";
+    String filePath = "./db/temp_thal_requests.csv";
     List<String> allLines = new ArrayList<>();
 
     System.out.print("Enter your Donor ID: ");
