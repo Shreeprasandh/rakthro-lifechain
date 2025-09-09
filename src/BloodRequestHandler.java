@@ -125,7 +125,7 @@ public class BloodRequestHandler {
                 manager.logAppointment(donor,email, donor.city, hospital, date, time);
 
                 
-                MailService.sendConfirmationEmail(email, donor.getName(), date, time, hospital);
+                /*MailService.sendConfirmationEmail(email, donor.getName(), date, time, hospital);*/
 
                 brm.removeRequest(selectedReq.email);
                 System.out.println(" Request fulfilled and appointment booked successfully.");
