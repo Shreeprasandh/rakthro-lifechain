@@ -108,7 +108,7 @@ public class BloodRequestHandler {
 
                 String hospital = manager.selectHospital(sc);
                 if (hospital == null) {
-                    System.out.println("❌ Hospital selection cancelled.");
+                    System.out.println(" Hospital selection cancelled.");
                     continue;
                 }
 
@@ -128,7 +128,7 @@ public class BloodRequestHandler {
                 MailService.sendConfirmationEmail(email, donor.getName(), date, time, hospital);
 
                 brm.removeRequest(selectedReq.email);
-                System.out.println("✅ Request fulfilled and appointment booked successfully.");
+                System.out.println(" Request fulfilled and appointment booked successfully.");
 
             } else if (choice.equals("3")) {
                 break;
