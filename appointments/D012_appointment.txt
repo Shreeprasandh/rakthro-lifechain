@@ -1,0 +1,11 @@
+RAKTHRO - Blood Donation Appointment
+------------------------------------
+Donor ID: D012
+Name    : sid
+Blood   : O+
+City    : chennai
+Hospital: GH Cuddalore
+Date    : 2025-09-12
+Time    : 10:00 AM
+------------------------------------
+Please bring a valid ID and arrive 15 mins early.

@@ -26,18 +26,47 @@ public class DonorManager {
 
     System.out.print("Age: ");
     int age = sc.nextInt(); sc.nextLine();
+    if (age < 18 || age > 65) {
+        System.out.println("Sorry, you must be between 18 and 65 years old to register as a donor.");
+        return;
+    }
 
+    System.out.println("[A+, A-, B+, B-, AB+, AB-, O+, O-]");
     System.out.print("Blood Group: ");
     String bg = sc.nextLine();
+    List<String> validBG = Arrays.asList("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
+    if (!validBG.contains(bg.toUpperCase())) {
+        System.out.println("Invalid blood group.");
+        return;
+    }
 
     System.out.print("City: ");
     String city = sc.nextLine();
 
+    if (!city.isEmpty()) {
+        city = city.substring(0,1).toUpperCase() + city.substring(1);
+    }
+
+
     System.out.print("Contact: ");
     String contact = sc.nextLine();
+    if (contact.length() < 10) {
+        System.out.println("Invalid contact number.");
+        return;
+    }
 
     System.out.print("Last Donated Date (yyyy-mm-dd): ");
     String lastDonatedDate = sc.nextLine();
+    if (!lastDonatedDate.isBlank()) {
+        try {
+            LocalDate.parse(lastDonatedDate);
+        } catch (Exception e) {
+            System.out.println("Invalid date format.");
+            return;
+        }
+    } else {
+        lastDonatedDate = "N/A"; // never donated
+    }
 
     String donorId = generateDonorId();
 

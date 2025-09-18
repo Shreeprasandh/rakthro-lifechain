@@ -44,6 +44,7 @@
                                 System.out.println("\n--- Donation Appointment ---");
                                 System.out.println("1. Book New Appointment");
                                 System.out.println("2. Cancel Appointment");
+                                System.out.println("3. Back to Main Menu");
                                 System.out.print("Choose an option: ");
                                 int apptChoice = sc.nextInt(); sc.nextLine();
                                 if (apptChoice == 1) {
@@ -86,7 +87,12 @@
                                     String cancelId = sc.nextLine();
                                     manager.cancelAppointment(cancelId,sc);
                                 }
-
+                                else if (apptChoice == 3) {
+                                    break; // back to main menu
+                                }
+                                else {
+                                    System.out.println("Invalid option.");
+                                }
                                 break;
 
                         case 4:
