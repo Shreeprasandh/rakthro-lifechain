@@ -14,9 +14,9 @@ public class BloodRequestManager {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true))) {
             bw.write(req.toCSV());
             bw.newLine();
-            System.out.println("✅ Request submitted.");
+            System.out.println(" Request submitted.");
         } catch (IOException e) {
-            System.out.println("❌ Failed to save request.");
+            System.out.println(" Failed to save request.");
         }
     }
 

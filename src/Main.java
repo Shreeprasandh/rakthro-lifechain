@@ -3,6 +3,7 @@
         public static void main(String[] args) {
             try (Scanner sc = new Scanner(System.in)) {
                 DonorManager manager = new DonorManager();
+                BloodRequestHandler requestHandler = new BloodRequestHandler();
                 HospitalDirectory hospitalDir = new HospitalDirectory();
                 AuthSystem auth = new AuthSystem();
 
@@ -55,7 +56,7 @@
                                         manager.viewAllAppointments();
                                         break;
                                     case 5:
-                                        manager.viewBloodRequests();
+                                        requestHandler.viewBloodRequests();
                                         break;
                                     case 6:
                                         manager.viewDonorsByDonationDate();

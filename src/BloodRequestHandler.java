@@ -1,3 +1,8 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 public class BloodRequestHandler {
@@ -125,7 +130,7 @@ public class BloodRequestHandler {
                 manager.logAppointment(donor,email, donor.city, hospital, date, time);
 
                 
-                /*MailService.sendConfirmationEmail(email, donor.getName(), date, time, hospital);*/
+                MailService.sendConfirmationEmail(email, donor.getName(), date, time, hospital);
 
                 brm.removeRequest(selectedReq.email);
                 System.out.println(" Request fulfilled and appointment booked successfully.");
@@ -137,4 +142,70 @@ public class BloodRequestHandler {
             }
         }
     }
+    public void viewBloodRequests() {
+    String[] cities = {
+        "Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem",
+        "Erode", "Tirunelveli", "Thoothukudi", "Vellore", "Nagercoil"
+    };
+    String[] bloodGroups = {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"};
+    String filePath = System.getProperty("user.dir") + "/db/requests.csv";
+
+    Random random = new Random();
+
+    // Generate & overwrite fresh random data
+    try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
+        writer.println("City,BloodGroup,Requests");
+
+        for (String city : cities) {
+            int groupCount = random.nextInt(3) + 2; // 2 to 4 blood groups
+            Set<String> selectedGroups = new HashSet<>();
+            
+            while (selectedGroups.size() < groupCount) {
+                String bg = bloodGroups[random.nextInt(bloodGroups.length)];
+                if (!selectedGroups.contains(bg)) {
+                    int req = random.nextInt(91) + 10; // 10 to 100 requests
+                    writer.printf("%s,%s,%d\n", city, bg, req);
+                    selectedGroups.add(bg);
+                }
+            }
+        }
+
+    } catch (IOException e) {
+        System.out.println("Error generating requests.csv");
+        return;
+    }
+
+    // Then call the old display logic
+    System.out.println("\n--- Blood Group Requests by City ---");
+    Map<String, List<String[]>> requestMap = new HashMap<>();
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        String line = reader.readLine(); // Skip header
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split(",");
+            if (parts.length != 3) continue;
+
+            String city = parts[0].trim();
+            String bg = parts[1].trim();
+            int req = Integer.parseInt(parts[2].trim());
+
+            requestMap.putIfAbsent(city, new ArrayList<>());
+            requestMap.get(city).add(new String[]{bg, String.valueOf(req)});
+        }
+    } catch (IOException e) {
+        System.out.println("Error reading requests.csv");
+        return;
+    }
+
+    for (String city : requestMap.keySet()) {
+        System.out.println("\n City: " + city);
+        List<String[]> groupRequests = requestMap.get(city);
+        groupRequests.sort((a, b) -> Integer.parseInt(b[1]) - Integer.parseInt(a[1]));
+
+        for (String[] bgReq : groupRequests) {
+            System.out.println("  " + bgReq[0] + " → " + bgReq[1] + " requests");
+        }
+    }
+}
+
 }
