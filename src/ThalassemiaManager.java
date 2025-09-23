@@ -528,6 +528,7 @@ public void cancelThalDonation(Scanner sc) {
 public void viewAndRespondToRequests(Scanner sc) {
     String filePath = "./db/temp_thal_requests.csv";
     List<String> allLines = new ArrayList<>();
+    Map<Integer, String> indexToRequestId = new HashMap<>();
 
     System.out.print("Enter your Donor ID: ");
     String donorId = sc.nextLine().trim();
@@ -538,9 +539,10 @@ public void viewAndRespondToRequests(Scanner sc) {
         return;
     }
 
+    // Read all requests and display matching ones
     try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
         String line;
-        int index = 1;
+        int displayIndex = 1;
         System.out.println("\n--- Open Requests Matching Your Thal Type ---");
 
         while ((line = br.readLine()) != null) {
@@ -557,58 +559,84 @@ public void viewAndRespondToRequests(Scanner sc) {
                 String requiredType = parts[3].trim();
                 String status = parts[5].trim();
 
-                if (status.equalsIgnoreCase("Open") && requiredType.equalsIgnoreCase(donor.thalType)) {
-                    System.out.println(index + ". " + requestId + " | " + name + " | " + city + " | Type: " + requiredType);
-                    index++;
-                }
+                allLines.add(line); // store all lines for later
 
-                allLines.add(line); // store for later
+                if (status.equalsIgnoreCase("Open") && requiredType.equalsIgnoreCase(donor.thalType)) {
+                    System.out.println(displayIndex + ". " + requestId + " | " + name + " | " + city + " | Type: " + requiredType);
+                    indexToRequestId.put(displayIndex, requestId); // map index to requestId
+                    displayIndex++;
+                }
             }
         }
+
+        if (indexToRequestId.isEmpty()) {
+            System.out.println("No open requests match your Thal Type.");
+            return;
+        }
     } catch (IOException e) {
-        System.out.println("Error reading requests.");
+        System.out.println("Error reading requests: " + e.getMessage());
         return;
     }
 
-    System.out.print("Enter Request ID to accept or 'back': ");
+    // Let donor respond
+    System.out.print("Enter the number of the Request to accept or 'back': ");
     String choice = sc.nextLine().trim();
     if (choice.equalsIgnoreCase("back")) return;
 
-    try (PrintWriter pw = new PrintWriter(new FileWriter("./db/temp_thal_requests.csv"))) {
+    try {
+        int selectedIndex = Integer.parseInt(choice);
+        String selectedRequestId = indexToRequestId.get(selectedIndex);
+        if (selectedRequestId == null) {
+            System.out.println("Invalid selection.");
+            return;
+        }
 
-
-        for (String line : allLines) {
-            if (line.startsWith("RequestID")) {
-                pw.println(line);
-                continue;
-            }
-
-            String[] parts = line.split(",");
-            if (parts.length >= 6 && parts[0].trim().equalsIgnoreCase(choice)) {
-                parts[5] = "Accepted by " + donor.name; // change status
-                System.out.println(" You’ve accepted the donation request.");
-                String subject = "Thal Donation Match Found!";
-                String body = "Hi " + donor.name + ",\n\nYou have accepted a donation request for " + parts[1] + " in " + parts[2] + ".\n"
-                            + "Thank you for stepping up \n\n– Rakthro Team";
-                try {
-                    MailService.sendCustomEmail(donor.email, subject, body);
-                } catch (Exception e) {
-                    System.out.println("Could not send email.");
+        File tempFile = new File("./db/temp_thal_requests_tmp.csv");
+        try (PrintWriter pw = new PrintWriter(new FileWriter(tempFile))) {
+            for (String line : allLines) {
+                if (line.startsWith("RequestID")) {
+                    pw.println(line);
+                    continue;
                 }
-                pw.println(String.join(",", parts));
-            } else {
-                pw.println(line);
+
+                String[] parts = line.split(",");
+                if (parts.length >= 6 && parts[0].trim().equalsIgnoreCase(selectedRequestId)) {
+                    parts[5] = "Accepted by " + donor.name;
+                    System.out.println("You’ve accepted the donation request.");
+
+                    if (donor.email != null && !donor.email.isEmpty()) {
+                        String subject = "Thal Donation Match Found!";
+                        String body = "Hi " + donor.name + ",\n\nYou have accepted a donation request for " 
+                                      + parts[1] + " in " + parts[2] + ".\nThank you for stepping up!\n\n– Rakthro Team";
+                        try {
+                            MailService.sendCustomEmail(donor.email, subject, body);
+                        } catch (Exception e) {
+                            System.out.println("Could not send email.");
+                        }
+                    }
+
+                    pw.println(String.join(",", parts));
+                } else {
+                    pw.println(line);
+                }
             }
         }
 
         // Replace original file
         File original = new File(filePath);
-        File temp = new File("./db/temp_thal_requests.csv");
-        if (original.delete()) temp.renameTo(original);
+        if (original.delete()) {
+            tempFile.renameTo(original);
+        } else {
+            System.out.println("Error replacing request file.");
+        }
+
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a number.");
     } catch (IOException e) {
-        System.out.println("Error updating request.");
+        System.out.println("Error updating request: " + e.getMessage());
     }
 }
+
 
     private void sendThalDonationCancelEmail(String name, String toEmail, String date, String hospital) {
     String subject = "Thalassemia Donation Cancelled";
