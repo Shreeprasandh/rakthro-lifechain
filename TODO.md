@@ -4,3 +4,4 @@
 - [x] Remove misplaced break statements
 - [x] Ensure proper indentation and braces
 - [ ] Compile and test the code
+- [x] Compile and test the code
