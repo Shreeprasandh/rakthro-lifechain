@@ -28,12 +28,13 @@
                             while (true) {
                                 System.out.println("\n--- Admin Panel ---");
                                 System.out.println("1. View All Donors");
-                                System.out.println("2. Edit Donor");
-                                System.out.println("3. Delete Donor");
-                                System.out.println("4. View All Appointments");
-                                System.out.println("5. View Blood Requests");
-                                System.out.println("6. View Donors by Last Donation Date");
-                                System.out.println("7. Logout");
+                                System.out.println("2. Search Donors");
+                                System.out.println("3. Edit Donor");
+                                System.out.println("4. Delete Donor");
+                                System.out.println("5. View All Appointments");
+                                System.out.println("6. View Blood Requests");
+                                System.out.println("7. View Donors by Last Donation Date");
+                                System.out.println("8. Logout");
                                 System.out.print("Choose an option: ");
                                 int adminChoice = sc.nextInt();
                                 sc.nextLine();
@@ -43,32 +44,48 @@
                                         manager.viewAllDonors();
                                         break;
                                     case 2:
+                                        System.out.print("Do you know the Donor ID? (yes/no): ");
+                                        String knowsId = sc.nextLine().trim().toLowerCase();
+
+                                        if (knowsId.equals("yes")) {
+                                            System.out.print("Enter Donor ID: ");
+                                            String donorId = sc.nextLine();
+                                            manager.searchById(donorId);
+                                        } else {
+                                            System.out.print("Enter Blood Group: ");
+                                            String sBg = sc.nextLine();
+                                            System.out.print("Enter City: ");
+                                            String sCity = sc.nextLine();
+                                            manager.searchDonors(sBg, sCity);
+                                        }
+                                        break;
+                                    case 3:
                                         System.out.print("Enter Donor ID to edit: ");
                                         String editId = sc.nextLine().trim();
                                         manager.editDonor(editId, sc);
                                         break;
-                                    case 3:
+                                    case 4:
                                         System.out.print("Enter Donor ID to delete: ");
                                         String delId = sc.nextLine().trim();
                                         manager.deleteDonor(delId);
                                         break;
-                                    case 4:
+                                    case 5:
                                         manager.viewAllAppointments();
                                         break;
-                                    case 5:
+                                    case 6:
                                         requestHandler.viewBloodRequests();
                                         break;
-                                    case 6:
+                                    case 7:
                                         manager.viewDonorsByDonationDate();
                                         break;
-                                    case 7:
+                                    case 8:
                                         System.out.println("Exiting Admin Panel...");
                                         break;
                                     default:
                                         System.out.println("Invalid option.");
                                 }
 
-                                if (adminChoice == 7) {
+                                if (adminChoice == 8) {
                                     break;
                                 }
                             }
@@ -131,7 +148,6 @@
     while (true) {
         System.out.println("\n--- RAKTHRO Blood Donor Console ---");
         System.out.println("1. Register Donor");
-        System.out.println("2. Search Donors");
         System.out.println("3. Donation Appointment");
         System.out.println("4. Donor Dashboard");
         System.out.println("5. Disease-Based Blood Donation");
@@ -146,22 +162,6 @@
                 manager.registerNewDonor(sc);
                 break;
             case 2:
-                System.out.print("Do you know the Donor ID? (yes/no): ");
-                String knowsId = sc.nextLine().trim().toLowerCase();
-
-                if (knowsId.equals("yes")) {
-                    System.out.print("Enter Donor ID: ");
-                    String donorId = sc.nextLine();
-                    manager.searchById(donorId);
-                } else {
-                    System.out.print("Enter Blood Group: ");
-                    String sBg = sc.nextLine();
-                    System.out.print("Enter City: ");
-                    String sCity = sc.nextLine();
-                    manager.searchDonors(sBg, sCity);
-                }
-                break;
-            case 3:
                 System.out.println("\n--- Donation Appointment ---");
                 System.out.println("1. Book New Appointment");
                 System.out.println("2. Cancel Appointment");
@@ -212,22 +212,22 @@
                     System.out.println("Invalid option.");
                 }
                 break;
-            case 4:
+            case 3:
                 manager.showDashboard(sc); // <- Add this new method below in DonorManager.java
                 break;
-            case 5:
+            case 4:
                 DiseaseDonationManager.showDiseaseBasedDonationMenu(sc, manager);
                 break;
-            case 6:
+            case 5:
                 BloodRequestHandler.handleRequestMenu(sc, manager, hospitalDir, "normal");
                 break;
-            case 7:
+            case 6:
                     System.out.println("Exiting User Panel...");
                     break;
             default:
                 System.out.println("Invalid option. Try again.");
         }
-        if (userchoice == 7) {
+        if (userchoice == 6) {
                 break;
             }
     }

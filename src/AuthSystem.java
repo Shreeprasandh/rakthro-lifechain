@@ -26,7 +26,7 @@ public class AuthSystem {
                     continue; // Skip header
                 }
                 String[] parts = line.split(",");
-                if (parts.length >= 2 && parts[0].equals(username) && parts[1].equals(password)) {
+                if (parts.length >= 2 && parts[0].trim().equals(username.trim()) && parts[1].trim().equals(password.trim())) {
                     return true;
                 }
             }
