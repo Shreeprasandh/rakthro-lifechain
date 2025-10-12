@@ -10,13 +10,14 @@ public class Donor {
 
 
 
-    public Donor(String donorId, String name, int age, String bloodGroup, String city, String contact, String lastDonatedDate) {
+    public Donor(String donorId, String name, int age, String bloodGroup, String city, String contact, String email, String lastDonatedDate) {
     this.donorId = donorId;
     this.name = name;
     this.age = age;
     this.bloodGroup = bloodGroup;
     this.city = city;
     this.contact = contact;
+    this.email = email;
     this.lastDonatedDate = lastDonatedDate;
 }
 
@@ -69,17 +70,23 @@ public class Donor {
         ? "No donation yet"
         : "Last Donated: " + lastDonatedDate;
 
-    return donorId + " - " + name + ", " + age + " yrs, BG: " + bloodGroup + ", City: " + city + ", Contact: " + contact + ", " + donateInfo;
+    return donorId + " - " + name + ", " + age + " yrs, BG: " + bloodGroup + ", City: " + city + ", Contact: " + contact + ", Email: " + email + ", " + donateInfo;
 }
 
 
     public String toCSV() {
-    return donorId + "," + name + "," + age + "," + bloodGroup + "," + city + "," + contact + "," + lastDonatedDate;
+    return donorId + "," + name + "," + age + "," + bloodGroup + "," + city + "," + contact + "," + email + "," + lastDonatedDate;
 }
 
     public static Donor fromCSV(String line) {
     String[] parts = line.split(",");
-    if (parts.length != 7) return null;
+    if (parts.length < 7) return null;
+
+    String email = "";
+    if (parts.length >= 8) {
+        email = parts[6].trim();  // Email at index 6 for 8 fields
+    }
+    // For 7 fields, email is empty, contact at 5, lastDonatedDate at 6
 
     return new Donor(
         parts[0].trim(),  // Donor ID
@@ -88,7 +95,8 @@ public class Donor {
         parts[3].trim(),  // Blood Group
         parts[4].trim(),  // City
         parts[5].trim(),  // Contact
-        parts[6].trim()   // Last Donated Date
+        email,            // Email (empty if not present)
+        parts[parts.length - 1].trim()  // Last Donated Date (last field)
     );
 }
 

@@ -20,7 +20,7 @@ public class DonorManager {
     saveToFile();         
 }
 
-    public void registerNewDonor(Scanner sc) {
+    public Donor registerNewDonor(Scanner sc) {
     System.out.print("Name: ");
     String name = sc.nextLine();
 
@@ -28,7 +28,7 @@ public class DonorManager {
     int age = sc.nextInt(); sc.nextLine();
     if (age < 18 || age > 65) {
         System.out.println("Sorry, you must be between 18 and 65 years old to register as a donor.");
-        return;
+        return null;
     }
 
     System.out.println("[A+, A-, B+, B-, AB+, AB-, O+, O-]");
@@ -37,7 +37,7 @@ public class DonorManager {
     List<String> validBG = Arrays.asList("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
     if (!validBG.contains(bg.toUpperCase())) {
         System.out.println("Invalid blood group.");
-        return;
+        return null;
     }
 
     System.out.print("City: ");
@@ -52,8 +52,11 @@ public class DonorManager {
     String contact = sc.nextLine();
     if (contact.length() < 10) {
         System.out.println("Invalid contact number.");
-        return;
+        return null;
     }
+
+    System.out.print("Email: ");
+    String email = sc.nextLine();
 
     System.out.print("Last Donated Date (yyyy-mm-dd): ");
     String lastDonatedDate = sc.nextLine();
@@ -62,7 +65,7 @@ public class DonorManager {
             LocalDate.parse(lastDonatedDate);
         } catch (Exception e) {
             System.out.println("Invalid date format.");
-            return;
+            return null;
         }
     } else {
         lastDonatedDate = "N/A"; // never donated
@@ -70,12 +73,13 @@ public class DonorManager {
 
     String donorId = generateDonorId();
 
-    Donor d = new Donor(donorId, name, age, bg, city, contact, lastDonatedDate);
+    Donor d = new Donor(donorId, name, age, bg, city, contact, email, lastDonatedDate);
     addDonor(d);
     ThalassemiaManager thalManager = new ThalassemiaManager();
     thalManager.addNewDonorToThalDatabase(d);
 
     System.out.println("Donor Registered Successfully! Donor ID: " + donorId);
+    return d;
 }
 
 
@@ -129,7 +133,7 @@ public class DonorManager {
         try {
             file.getParentFile().mkdirs(); // ensure db/ folder exists
             try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
-                writer.println("DonorID,Name,Age,BloodGroup,City,Contact,LastDonatedDate");
+                writer.println("DonorID,Name,Age,BloodGroup,City,Contact,Email,LastDonatedDate");
 
                 for (Donor d : donorList) {
                     writer.println(d.toCSV());
@@ -235,7 +239,7 @@ public class DonorManager {
             String[] data = line.split(",");
             if (data[0].trim().equals(id)) {
                 return new Donor(data[0].trim(), data[1].trim(), Integer.parseInt(data[2].trim()),
-                                 data[3].trim(), data[4].trim(), data[5].trim(), data[6].trim());
+                                 data[3].trim(), data[4].trim(), data[5].trim(), data[6].trim(), data[7].trim());
             }
         }
     } catch (IOException e) {
@@ -583,6 +587,17 @@ public class DonorManager {
 }
 
     
+    public void addUserToCSV(String donorId, String username, String email, String password) {
+        String userFile = System.getProperty("user.dir") + "/db/user.csv";
+        File file = new File(userFile);
+        try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
+            writer.println(donorId + "," + username + "," + email + "," + password);
+            System.out.println("User credentials added to user.csv");
+        } catch (IOException e) {
+            System.out.println("Error adding user to CSV.");
+        }
+    }
+
     public void loadFromFile() {
     donorList.clear(); //  VERY IMPORTANT
 

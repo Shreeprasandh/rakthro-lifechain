@@ -75,112 +75,163 @@
                         } else {
                             System.out.println("Access Denied!");
                         }
-                    } else if (loginChoice == 2) {
-                        System.out.println("User Login Successful!");
-                        while (true) {
-                            System.out.println("\n--- RAKTHRO Blood Donor Console ---");
-                            System.out.println("1. Register Donor");
-                            System.out.println("2. Search Donors");
-                            System.out.println("3. Donation Appointment");
-                            System.out.println("4. Donor Dashboard");
-                            System.out.println("5. Disease-Based Blood Donation");
-                            System.out.println("6. Blood Request");
-                            System.out.println("7. Logout");
-                            System.out.print("Choose an option: ");
-                            int userchoice = sc.nextInt();
-                            sc.nextLine();
+} else if (loginChoice == 2) {
+    System.out.println("1. Log In");
+    System.out.println("2. Sign In");
+    System.out.print("Choose an option: ");
+    int userChoice = sc.nextInt();
+    sc.nextLine();
 
-                            switch (userchoice) {
-                                case 1:
-                                    manager.registerNewDonor(sc);
-                                    break;
-                                case 2:
-                                    System.out.print("Do you know the Donor ID? (yes/no): ");
-                                    String knowsId = sc.nextLine().trim().toLowerCase();
+    if (userChoice == 1) {
+        System.out.print("Do you know your Donor ID? (yes/no): ");
+        String knowsId = sc.nextLine().trim().toLowerCase();
 
-                                    if (knowsId.equals("yes")) {
-                                        System.out.print("Enter Donor ID: ");
-                                        String donorId = sc.nextLine();
-                                        manager.searchById(donorId);
-                                    } else {
-                                        System.out.print("Enter Blood Group: ");
-                                        String sBg = sc.nextLine();
-                                        System.out.print("Enter City: ");
-                                        String sCity = sc.nextLine();
-                                        manager.searchDonors(sBg, sCity);
-                                    }
-                                    break;
-                                case 3:
-                                    System.out.println("\n--- Donation Appointment ---");
-                                    System.out.println("1. Book New Appointment");
-                                    System.out.println("2. Cancel Appointment");
-                                    System.out.println("3. Back to Main Menu");
-                                    System.out.print("Choose an option: ");
-                                    int apptChoice = sc.nextInt();
-                                    sc.nextLine();
-                                    if (apptChoice == 1) {
-                                        System.out.print("Enter your Donor ID: ");
-                                        String donorId = sc.nextLine();
-                                        Donor donor = manager.getDonorById(donorId);
+        if (knowsId.equals("yes")) {
+            System.out.print("Donor ID: ");
+            String donorId = sc.nextLine();
+            System.out.print("Password: ");
+            String password = sc.nextLine();
 
-                                        if (donor == null) {
-                                            System.out.println("Donor ID not found.");
-                                            break;
-                                        }
+            if (auth.userLoginByDonorId(donorId, password)) {
+                System.out.println("Login Successful!");
+            } else {
+                System.out.println("Invalid credentials.");
+                continue;
+            }
+        } else {
+            System.out.print("Username: ");
+            String username = sc.nextLine();
+            System.out.print("Email: ");
+            String email = sc.nextLine();
+            System.out.print("Password: ");
+            String password = sc.nextLine();
 
-                                        // Book appointment
-                                        if (donor.getLastDonatedDate() == null ||
-                                            donor.getLastDonatedDate().isBlank() ||
-                                            donor.getLastDonatedDate().equalsIgnoreCase("N/A")) {
-                                            System.out.println("No last donation data available. Cannot book appointment.");
-                                            break;
-                                        }
+            if (auth.userLoginByCredentials(username, email, password)) {
+                System.out.println("Login Successful!");
+            } else {
+                System.out.println("Invalid credentials.");
+                continue;
+            }
+        }
+    } else if (userChoice == 2) {
+        Donor newDonor = manager.registerNewDonor(sc);
+        if (newDonor != null) {
+            System.out.print("Password: ");
+            String password = sc.nextLine();
+            manager.addUserToCSV(newDonor.donorId, newDonor.name, newDonor.email, password);
+            System.out.println("Sign In Successful! You can now log in.");
+        }
+        continue;
+    } else {
+        System.out.println("Invalid option.");
+        continue;
+    }
 
-                                        if (!manager.isEligibleToDonate(donor)) {
-                                            int daysLeft = manager.daysUntilEligible(donor);
-                                            System.out.println("Not eligible to donate. Try again in " + daysLeft + " days.");
-                                            break;
-                                        }
+    // if login successful, enter the while loop
+    while (true) {
+        System.out.println("\n--- RAKTHRO Blood Donor Console ---");
+        System.out.println("1. Register Donor");
+        System.out.println("2. Search Donors");
+        System.out.println("3. Donation Appointment");
+        System.out.println("4. Donor Dashboard");
+        System.out.println("5. Disease-Based Blood Donation");
+        System.out.println("6. Blood Request");
+        System.out.println("7. Logout");
+        System.out.print("Choose an option: ");
+        int userchoice = sc.nextInt();
+        sc.nextLine();
 
-                                        // Use new selectHospital
-                                        String selectedHospital = manager.selectHospital(sc);
-                                        if (selectedHospital == null) {
-                                            System.out.println("Hospital selection failed.");
-                                            break;
-                                        }
+        switch (userchoice) {
+            case 1:
+                manager.registerNewDonor(sc);
+                break;
+            case 2:
+                System.out.print("Do you know the Donor ID? (yes/no): ");
+                String knowsId = sc.nextLine().trim().toLowerCase();
 
-                                        // Pass donor.city as city for slip
-                                        manager.generateAppointmentSlip(donor, donor.city, selectedHospital, sc);
-                                    } else if (apptChoice == 2) {
-                                        System.out.print("Enter your Donor ID to cancel appointment: ");
-                                        String cancelId = sc.nextLine();
-                                        manager.cancelAppointment(cancelId, sc);
-                                    } else if (apptChoice == 3) {
-                                        break; // back to main menu
-                                    } else {
-                                        System.out.println("Invalid option.");
-                                    }
-                                    break;
-                                case 4:
-                                    manager.showDashboard(sc); // <- Add this new method below in DonorManager.java
-                                    break;
-                                case 5:
-                                    DiseaseDonationManager.showDiseaseBasedDonationMenu(sc, manager);
-                                    break;
-                                case 6:
-                                    BloodRequestHandler.handleRequestMenu(sc, manager, hospitalDir, "normal");
-                                    break;
-                                case 7:
-                                        System.out.println("Exiting User Panel...");
-                                        break;
-                                default:
-                                    System.out.println("Invalid option. Try again.");
-                            }
-                            if (userchoice == 7) {
-                                    break;
-                                }
-                        }
+                if (knowsId.equals("yes")) {
+                    System.out.print("Enter Donor ID: ");
+                    String donorId = sc.nextLine();
+                    manager.searchById(donorId);
+                } else {
+                    System.out.print("Enter Blood Group: ");
+                    String sBg = sc.nextLine();
+                    System.out.print("Enter City: ");
+                    String sCity = sc.nextLine();
+                    manager.searchDonors(sBg, sCity);
+                }
+                break;
+            case 3:
+                System.out.println("\n--- Donation Appointment ---");
+                System.out.println("1. Book New Appointment");
+                System.out.println("2. Cancel Appointment");
+                System.out.println("3. Back to Main Menu");
+                System.out.print("Choose an option: ");
+                int apptChoice = sc.nextInt();
+                sc.nextLine();
+                if (apptChoice == 1) {
+                    System.out.print("Enter your Donor ID: ");
+                    String donorId = sc.nextLine();
+                    Donor donor = manager.getDonorById(donorId);
+
+                    if (donor == null) {
+                        System.out.println("Donor ID not found.");
+                        break;
                     }
+
+                    // Book appointment
+                    if (donor.getLastDonatedDate() == null ||
+                        donor.getLastDonatedDate().isBlank() ||
+                        donor.getLastDonatedDate().equalsIgnoreCase("N/A")) {
+                        System.out.println("No last donation data available. Cannot book appointment.");
+                        break;
+                    }
+
+                    if (!manager.isEligibleToDonate(donor)) {
+                        int daysLeft = manager.daysUntilEligible(donor);
+                        System.out.println("Not eligible to donate. Try again in " + daysLeft + " days.");
+                        break;
+                    }
+
+                    // Use new selectHospital
+                    String selectedHospital = manager.selectHospital(sc);
+                    if (selectedHospital == null) {
+                        System.out.println("Hospital selection failed.");
+                        break;
+                    }
+
+                    // Pass donor.city as city for slip
+                    manager.generateAppointmentSlip(donor, donor.city, selectedHospital, sc);
+                } else if (apptChoice == 2) {
+                    System.out.print("Enter your Donor ID to cancel appointment: ");
+                    String cancelId = sc.nextLine();
+                    manager.cancelAppointment(cancelId, sc);
+                } else if (apptChoice == 3) {
+                    break; // back to main menu
+                } else {
+                    System.out.println("Invalid option.");
+                }
+                break;
+            case 4:
+                manager.showDashboard(sc); // <- Add this new method below in DonorManager.java
+                break;
+            case 5:
+                DiseaseDonationManager.showDiseaseBasedDonationMenu(sc, manager);
+                break;
+            case 6:
+                BloodRequestHandler.handleRequestMenu(sc, manager, hospitalDir, "normal");
+                break;
+            case 7:
+                    System.out.println("Exiting User Panel...");
+                    break;
+            default:
+                System.out.println("Invalid option. Try again.");
+        }
+        if (userchoice == 7) {
+                break;
+            }
+    }
+}
                     else if (loginChoice == 3) {
                         System.out.println("Exiting RAKTHRO System.");
                         break;

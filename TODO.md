@@ -1,7 +1,9 @@
-# TODO List for Fixing Main.java
+# TODO: Implement User Login and Sign-In Functionality
 
-- [x] Refactor the main method to fix loop structures and nesting
-- [x] Remove misplaced break statements
-- [x] Ensure proper indentation and braces
-- [ ] Compile and test the code
-- [x] Compile and test the code
+## Tasks
+- [x] Populate db/user.csv from db/donors.csv with DonorID, Name (as Username), Email, dummy password "password123"
+- [x] Extend AuthSystem.java with userLogin method for user.csv authentication
+- [x] Modify DonorManager.java: Update registerNewDonor to return DonorID, add method to append to user.csv
+- [x] Modify Main.java: Change "User Login" to ask for Log In or Sign In, implement the flows
+- [x] Test login and sign-in flows
+- [x] Verify user.csv updates correctly

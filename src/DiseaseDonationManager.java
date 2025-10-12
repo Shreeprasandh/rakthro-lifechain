@@ -69,10 +69,12 @@ public class DiseaseDonationManager {
                     String city = sc.nextLine();
                     System.out.print("Contact: ");
                     String contact = sc.nextLine();
+                    System.out.print("Email: ");
+                    String email = sc.nextLine();
                     System.out.print("Last Donated Date (yyyy-mm-dd): ");
                     String lastDonatedDate = sc.nextLine();
                     String donorId = manager.generateDonorId();
-                    Donor newDonor = new Donor(donorId, name, age, bg, city, contact, lastDonatedDate);
+                    Donor newDonor = new Donor(donorId, name, age, bg, city, contact, email, lastDonatedDate);
                     manager.addDonor(newDonor);
 
                     //  FIXED ORDER: Load → Generate ID → Add → Save
@@ -185,7 +187,7 @@ public class DiseaseDonationManager {
                 String lastDate = sc.nextLine();
 
                 String donorId = manager.generateDonorId();
-                Donor donor = new Donor(donorId, name, age, bg, city, contact, lastDate);
+                Donor donor = new Donor(donorId, name, age, bg, city, contact, email, lastDate);
                 manager.addDonor(donor);
 
                 String scdId = scdManager.generateScId();
