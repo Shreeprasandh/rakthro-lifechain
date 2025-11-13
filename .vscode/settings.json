@@ -3,5 +3,5 @@
     "lib/**/*.jar"
   ]
 }
-
+//javac -cp lib/* src/*.java -d bin/
 //java -cp "bin;lib/*" Main
