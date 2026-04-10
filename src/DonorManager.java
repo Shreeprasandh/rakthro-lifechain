@@ -590,8 +590,11 @@ public class DonorManager {
     public void addUserToCSV(String donorId, String username, String email, String password) {
         String userFile = System.getProperty("user.dir") + "/db/user.csv";
         File file = new File(userFile);
-        try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
-            writer.println(donorId + "," + username + "," + email + "," + password);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+            String csvLine = donorId + "," + username + "," + email + "," + password;
+            bw.write(csvLine);
+            bw.newLine();
+            bw.flush();
             System.out.println("User credentials added to user.csv");
         } catch (IOException e) {
             System.out.println("Error adding user to CSV.");

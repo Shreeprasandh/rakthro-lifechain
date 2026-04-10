@@ -67,7 +67,7 @@ RAKTHRO is a comprehensive Java-based console application designed to streamline
 3. **Set Classpath and Run**
    ```bash
    # Run the application
-   java -cp "bin:lib/*" Main
+   java -cp "bin;lib/*" Main
    ```
 
 ### Dependencies

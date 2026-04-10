@@ -1,0 +1,446 @@
+================================================================================
+RAKTHRO - Blood Donor Management System: Comprehensive Project Report
+================================================================================
+
+Author: Shreeprasandh K
+Date: Generated on [Current Date]
+Project Version: Base_PROTOTYPE
+Language: Java (JDK 8+)
+Platform: Console-based Application
+
+================================================================================
+1. PROJECT OVERVIEW
+================================================================================
+
+RAKTHRO is a comprehensive Java-based console application designed to streamline blood donation management in Tamil Nadu, India. The system facilitates donor registration, appointment scheduling, blood request handling, and specialized disease-based donation programs for Thalassemia and Sickle Cell Anemia patients. Built with a focus on user-friendly interfaces and robust data management, RAKTHRO serves as a bridge between blood donors and recipients through efficient coordination and communication.
+
+Key Features:
+- Donor Management: Complete lifecycle from registration to donation tracking
+- Appointment System: Automated booking with hospital selection and email confirmations
+- Blood Request Portal: Emergency request submission and fulfillment
+- Authentication System: Secure login for admins and users
+- Email Notifications: Automated confirmations and updates
+- Disease-Based Programs: Specialized support for Thalassemia and Sickle Cell Anemia
+- Administrative Panel: System oversight with analytics and monitoring
+
+================================================================================
+2. TECHNOLOGY STACK
+================================================================================
+
+Programming Language:
+- Java (JDK 8 or higher)
+- Object-Oriented Programming (OOP) principles
+- Design Patterns: Manager Classes, Factory Pattern, Observer Pattern
+
+Data Storage:
+- CSV-based file system for portability
+- No database required, uses flat files
+- File paths: Relative to project root (db/, appointments/, etc.)
+
+External Libraries (JAR files in lib/):
+- activation-1.1.1.jar: JavaBeans Activation Framework
+- gson-2.8.9.jar: JSON processing (though not heavily used in current code)
+- javax.mail-1.6.2.jar: JavaMail API for email functionality
+
+Build System:
+- Manual compilation using javac
+- Classpath includes lib/* for dependencies
+- Compiled classes stored in bin/ directory
+
+Email Integration:
+- Gmail SMTP server (smtp.gmail.com:587)
+- TLS encryption
+- App password authentication required
+
+================================================================================
+3. SYSTEM ARCHITECTURE
+================================================================================
+
+Architecture Type: Layered Architecture with Manager Classes
+
+Core Components:
+1. Presentation Layer: Console-based UI in Main.java
+2. Business Logic Layer: Manager classes (DonorManager, ThalassemiaManager, etc.)
+3. Data Access Layer: CSV file operations with BufferedReader/PrintWriter
+4. Utility Layer: MailService, HospitalDirectory, AuthSystem
+
+Design Patterns Used:
+- Manager Pattern: Centralized business logic (DonorManager, etc.)
+- Factory Pattern: ID generation (generateDonorId, generateThalId)
+- Observer Pattern: Email notifications
+- Singleton-like: Static methods in utility classes
+
+File Structure:
+- src/: Source code (.java files)
+- bin/: Compiled classes (.class files)
+- db/: CSV data files
+- lib/: External JAR dependencies
+- appointments/: Generated appointment slips (.txt files)
+
+================================================================================
+4. CLASS ARCHITECTURE AND DETAILS
+================================================================================
+
+4.1 Main.java
+-----------
+Purpose: Application entry point, main menu navigation, user/admin routing
+Variables:
+- sc: Scanner for user input
+- manager: DonorManager instance
+- requestHandler: BloodRequestHandler instance
+- hospitalDir: HospitalDirectory instance
+- auth: AuthSystem instance
+
+Methods:
+- main(String[] args): Entry point, infinite loop for menu
+- Nested while loops for admin and user panels
+- Switch statements for menu options
+
+Flow:
+1. Display welcome message
+2. Loop: Admin/User/Exit choice
+3. Admin: Authenticate, show admin menu
+4. User: Login/Sign In, show user menu
+5. Handle choices with switch cases
+
+4.2 DonorManager.java
+--------------------
+Purpose: Central donor operations, registration, search, appointments, analytics
+Variables:
+- donorList: List<Donor> - In-memory donor storage
+- fileName: String - Path to donors.csv ("db/donors.csv")
+
+Methods:
+- DonorManager(): Constructor, loads from file
+- addDonor(Donor d): Adds to list and saves to file
+- registerNewDonor(Scanner sc): Interactive registration with validation
+- generateDonorId(): Factory pattern for unique IDs (D001, D002, etc.)
+- searchDonors(String bg, String city): Search by blood group and city
+- searchById(String id): Search by donor ID
+- viewAllDonors(): Display all donors
+- saveToFile(): Write donorList to CSV
+- showDashboard(Scanner sc): City-wise and blood group analytics
+- editDonor(String id, Scanner sc): Update donor info
+- getDonorById(String id): Retrieve donor from file
+- isEligibleToDonate(Donor d): Check 90-day rule
+- daysUntilEligible(Donor d): Calculate days until eligible
+- selectHospital(Scanner sc): Interactive hospital selection
+- generateAppointmentSlip(Donor d, String city, String hospital, Scanner sc): Create appointment file and send email
+- logAppointment(...): Log to appointments.csv
+- logSimpleAppointment(...): Log to appointments_simple.csv
+- viewAllAppointments(): Display all appointments
+- viewDonorsByDonationDate(): Sort and display by last donation
+- cancelAppointment(String id, Scanner sc): Remove appointment
+- sendCancellationEmail(...): Send email via MailService
+- deleteDonor(String id): Remove from list and file
+- addUserToCSV(...): Add to user.csv for authentication
+- loadFromFile(): Load donors from CSV
+
+Key Variables Details:
+- donorList: ArrayList<Donor>, holds all donor objects in memory
+- fileName: String, constant path to CSV file
+
+4.3 AuthSystem.java
+------------------
+Purpose: Authentication for admin and user logins
+Variables: None (stateless utility class)
+
+Methods:
+- login(String username, String password): Admin authentication against admin.csv
+- userLoginByDonorId(String id, String pass): User auth by ID
+- userLoginByCredentials(String name, String email, String pass): User auth by details
+
+All methods use BufferedReader to read CSV files and check credentials.
+
+4.4 DiseaseDonationManager.java
+-------------------------------
+Purpose: Router for disease-based donation menus
+Variables: None (static methods)
+
+Methods:
+- showDiseaseBasedDonationMenu(Scanner sc, DonorManager manager): Main disease menu
+- showThalassemiaMenu(...): Thalassemia submenu
+- showSickleCellMenu(...): Sickle Cell submenu
+
+Handles menu navigation for Thalassemia and Sickle Cell programs.
+
+4.5 BloodRequestHandler.java
+---------------------------
+Purpose: Handle blood request submission and fulfillment
+Variables:
+- NORMAL_PATH, THAL_PATH, SICKLE_PATH: String constants for CSV paths
+
+Methods:
+- handleRequestMenu(...): Menu for request operations
+- viewBloodRequests(): Generate and display random request analytics
+
+Uses BloodRequestManager for CRUD operations on requests.
+
+4.6 Donor.java
+-------------
+Purpose: Data model for donor information
+Variables:
+- donorId: String (e.g., "D001")
+- name: String
+- age: int
+- bloodGroup: String (A+, A-, etc.)
+- city: String
+- contact: String (10-digit)
+- email: String
+- lastDonatedDate: String (YYYY-MM-DD or N/A)
+
+Methods:
+- Constructor: Initialize all fields
+- Getters: getDonorId(), getName(), getAge(), etc.
+- toString(): Formatted display
+- toCSV(): Comma-separated string
+- fromCSV(String line): Static factory from CSV line
+
+4.7 MailService.java
+-------------------
+Purpose: Email notification system
+Variables: None (static methods)
+
+Methods:
+- sendConfirmationEmail(String to, String name, String date, String time, String hospital): Send appointment confirmation
+- sendCustomEmail(String to, String subject, String body): Generic email sender
+
+Uses JavaMail API with Gmail SMTP.
+
+4.8 Other Classes (Brief)
+------------------------
+- ThalassemiaManager.java: Manages Thalassemia donors, checkups, donations
+- SickleCellManager.java: Similar for Sickle Cell
+- BloodRequestManager.java: CRUD for blood requests
+- HospitalDirectory.java: Load and manage hospital data
+- ThalassemiaDonor.java, SickleCellDonor.java: Specialized donor models
+- BloodRequest.java: Request data model
+
+================================================================================
+5. DATA FLOW AND STORAGE
+================================================================================
+
+CSV Database Structure:
+
+Core Files:
+- db/donors.csv: DonorID,Name,Age,BloodGroup,City,Contact,Email,LastDonatedDate
+- db/user.csv: DonorID,Username,Email,Password
+- db/admin.csv: Username,Password
+- db/hospital.csv: City,Hospital
+
+Appointment Files:
+- db/appointments.csv: DonorID,Name,Email,BloodGroup,City,Hospital,Date,Time
+- db/appointments_simple.csv: DonorID,Name,Date,Email
+- appointments/DXXX_appointment.txt: Formatted appointment slips
+
+Disease-Specific Files:
+- db/thal_donors.csv: ThalID,DonorID,Name,... (extensive fields)
+- db/thal_checkups.csv: Checkup records
+- db/thal_donations.csv: Donation history
+- db/thal_blood_requests.csv: Thalassemia requests
+- Similar for Sickle Cell (sickle_*.csv)
+
+Request Files:
+- db/blood_requests.csv: Name,City,BloodGroup,Contact,Email
+- db/requests.csv: Generated analytics (City,BloodGroup,Requests)
+
+Data Relationships:
+- DonorID links across all donor-related files
+- ThalID/SCDID link to main DonorID
+- Email used for notifications and auth
+- City-based hospital mapping
+
+Data Flow:
+1. User input → Validation → Object creation → Save to CSV
+2. Load from CSV → In-memory lists → Operations → Save back
+3. Appointments: Generate slip → Log to CSV → Send email
+4. Requests: Submit → Store → Fulfill → Remove from CSV
+
+================================================================================
+6. APPLICATION FLOW
+================================================================================
+
+Startup:
+1. Main.main() executes
+2. Initialize managers and utilities
+3. Display welcome message
+
+Main Loop:
+1. Show menu: Admin Login / User Login / Exit
+2. Choice 1: Admin Login
+   - Prompt username/password
+   - AuthSystem.login() checks admin.csv
+   - If success, enter admin panel
+3. Choice 2: User Login
+   - Submenu: Log In / Sign In
+   - Log In: By ID or credentials, AuthSystem.userLogin*()
+   - Sign In: Register new donor, add to user.csv
+   - If success, enter user panel
+
+Admin Panel Loop:
+- View All Donors, Search, Edit, Delete, View Appointments, View Requests, etc.
+- Each option calls DonorManager or other methods
+
+User Panel Loop:
+- Register Donor, Donation Appointment, Dashboard, Disease-Based, Blood Request, Logout
+- Appointment: Check eligibility, select hospital, generate slip, email
+- Dashboard: City/BG analytics
+- Disease: Route to Thalassemia/Sickle Cell menus
+- Request: Handle blood requests
+
+Disease Menus:
+- Thalassemia: Register, Checkup, Donation, Dashboard, History, Requests
+- Sickle Cell: Similar, with transfusion focus
+
+Exit: System.out.println("Exiting..."); break;
+
+================================================================================
+7. DEPENDENCIES AND LIBRARIES
+================================================================================
+
+External JARs (in lib/):
+- activation-1.1.1.jar: Required for JavaMail
+- gson-2.8.9.jar: JSON handling (minimal use)
+- javax.mail-1.6.2.jar: Core email functionality
+
+Internal Dependencies:
+- All classes depend on java.io.*, java.util.*, java.time.*
+- MailService depends on javax.mail.*
+- Managers depend on model classes (Donor, etc.)
+
+Classpath: bin:lib/* for runtime
+
+================================================================================
+8. SECURITY FEATURES
+================================================================================
+
+Authentication:
+- Admin: Username/password from admin.csv
+- User: Multiple methods (ID+pass, name+email+pass)
+- Input validation to prevent NullPointerException
+
+Data Validation:
+- Age: 18-65
+- Blood Group: Valid types only
+- Contact: 10-digit minimum
+- Email: Basic format (not strict)
+- Dates: YYYY-MM-DD format
+
+File Security:
+- CSV files in db/ folder
+- No encryption (plaintext passwords)
+- File locking via try-with-resources
+
+Limitations:
+- Plaintext passwords
+- No session management
+- Console-based, no HTTPS
+
+================================================================================
+9. EMAIL INTEGRATION
+================================================================================
+
+Configuration:
+- SMTP: smtp.gmail.com:587
+- Auth: App password (not regular password)
+- TLS: Enabled
+
+Templates:
+- Appointment Confirmation: Date, time, hospital
+- Cancellation: Simple notice
+- Custom: Generic subject/body
+
+Flow:
+1. Collect email from user
+2. Generate content
+3. MailService.send*() uses JavaMail
+4. Success/failure logged to console
+
+================================================================================
+10. LIMITATIONS AND FUTURE ENHANCEMENTS
+================================================================================
+
+Current Limitations:
+- Console UI (no GUI)
+- CSV storage (not scalable)
+- Email dependency on Gmail
+- No real-time features
+- Manual compilation
+
+Future Enhancements:
+- Web GUI (React/Vue)
+- Database (MySQL/PostgreSQL)
+- Mobile app
+- Real-time notifications
+- Advanced analytics
+- Multi-language support
+
+================================================================================
+11. COMPILATION AND RUNNING
+================================================================================
+
+Prerequisites:
+- JDK 8+
+- Windows/Linux/Mac
+- Internet for email
+
+Compilation:
+javac -cp "lib/*" src/*.java -d bin/
+
+Running:
+java -cp "bin:lib/*" Main
+
+================================================================================
+12. SAMPLE DATA AND USAGE
+================================================================================
+
+Sample Donor CSV:
+DonorID,Name,Age,BloodGroup,City,Contact,Email,LastDonatedDate
+D001,John Doe,25,A+,Chennai,9876543210,john@example.com,2023-05-15
+
+Admin CSV:
+admin,password
+
+Hospital CSV:
+Chennai,Apollo Hospital
+Chennai,Global Hospital
+
+Usage Example:
+1. Run application
+2. Choose User Login
+3. Sign In: Enter details
+4. Book appointment: Enter ID, select hospital, confirm email
+
+================================================================================
+13. CODE QUALITY AND BEST PRACTICES
+================================================================================
+
+Strengths:
+- Modular design with manager classes
+- Input validation
+- Error handling with try-catch
+- Comments in code
+- Consistent naming (camelCase)
+
+Areas for Improvement:
+- Magic numbers (e.g., 90 days)
+- Hardcoded paths
+- No unit tests
+- Limited exception handling
+- No logging framework
+
+================================================================================
+14. CONCLUSION
+================================================================================
+
+RAKTHRO is a well-structured Java application for blood donation management, demonstrating good OOP practices, data handling, and user interaction. While limited by console interface and CSV storage, it provides a solid foundation for expansion into a full-fledged system. The disease-specific modules add valuable functionality for specialized medical needs.
+
+Total Lines of Code: Approximately 2000+ lines across 15+ classes
+Files Analyzed: 20+ source and data files
+Key Technologies: Java, CSV, JavaMail, OOP Design Patterns
+
+This report provides a comprehensive overview of the RAKTHRO project, covering all aspects from architecture to implementation details.
+
+================================================================================
+END OF REPORT
+================================================================================
